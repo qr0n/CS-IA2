@@ -1,27 +1,15 @@
-Int function `checkUserPrivilege`
-Accepts level | type int
+`void makeUser(char username[20], char password[20])`
+Accepts 20 bytes on `username` and 20 bytes on `password`.
+Creates a user in D:/projects/compsci/db/users/<username.txt>
 
-:: Not implemented yet ::
+`void getMenu()`
+Accepts no arguments.
+Prints menu on console
 
-Void function `updateUser`
-Accepts password, privilege | type character array (50), type integer
+`void addToMenu(char item[20], int price)`
+Accepts 20 bytes on `item` and an integer `price`.
+Apends to D:/projects/compsci/db/menu.txt
+<item> | <price>
 
-:: Not implemented yet ::
-
-Void function `makeUser`
-Accepts username, password, privilege | type character array (50), type character array (50), integer
-
-Appeneds username, password and privilege into path
-C:/Users/XXX/OneDrive/Desktop/computer science/database/<username.txt>
-
-Void function `login`
-Accepts None
-
-Logs a user in
-on success:
-sets global variable `current_user` to current username
-sets global variable `current_user_privilege` to current user privilege
-
-
-[1, 2, 3, 4, 5, 6]
-[[1, 2 , 3], [4, 5, 6]]
+`int main()`
+Current use : test functions
