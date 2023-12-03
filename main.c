@@ -15,18 +15,40 @@ char current_user_privilege[5];
 char username[50];
 char password[50];
 
+int readPrivliege = 1;
+int writePrivilege = 2;
+int userManage = 3;
+
+
 int checkUserPrivilege(int level)
+{
+  switch(level)
+  {
+    case 1:
+    // allow read
+    break;
+    case 2:
+    // allow write
+    break;
+    case 3:
+    // allow user to create/delete/delevel users
+    break;
+  }
+}
+
+void updateUser(char password[50], int privilege)
 {
   
 }
 
-void makeUser(char username[50], char password[50], char privilege[5])
+
+void makeUser(char username[50], char password[50])
 {
   char ufp[256];
-  sprintf(ufp, "%s/users/%s.txt", dbd, username);
+  sprintf(ufp, "%s/%s.txt", cwd, username);
   
   userfile = fopen(ufp, "w");
-  fprintf(userfile, "%s\n%s\n%s", username, password, privilege);
+  fprintf(userfile, "%s\n%s", username, password);
 
   // Assuming menufile is declared somewhere in your program
   // fprintf(menufile, "%s\n%s", username, password);
@@ -40,18 +62,6 @@ void login()
   scanf("%s", password);
   //login and set `current_user` to current logged in user
 }
-// void signUp() {
-//   // printf("Enter an username\n> ");
-//   // scanf("%s", username);
-//   // printf("Enter a password\n> ");
-//   // scanf("%s", password);
-  
-//   //FILE* fptr = fopen("users.txt", "a");
-//   fprintf(fptr, "%s\n", username);
-//   fprintf(fptr, "%s\n\n", password);
-//   fclose(fptr);
-//   printf("Made user '%s'", username);
-// }
 
 void loggerplslog(char* severity, char* user, char* message)
 {
@@ -63,11 +73,10 @@ void loggerplslog(char* severity, char* user, char* message)
 
 const char* getMenu()
 {
-  //loggerplslog()
-  //menufile = fopen("")
+  
 } 
 
 void main()
 {
-  makeUser("admin", "1234", "all");
+  makeUser("admin", "1234");
 }
