@@ -4,7 +4,7 @@ FILE* userdb;
 FILE* menudb;
 
 
-void makeUser(const char username[20], const char* password[20])
+void makeUser(const char username[20], const char password[20])
 {
     char fp[60]; // file path
     char fc[40]; // file content 
@@ -14,6 +14,11 @@ void makeUser(const char username[20], const char* password[20])
     sprintf(fc, "%s\n%s", username, password);
     fprintf(userdb, fc);
     fclose(userdb); // Close the file after writing
+}
+
+void login(const char  username[20], const char password[20])
+{
+    
 }
 
 void getMenu()
