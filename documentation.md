@@ -22,3 +22,6 @@ on success:
 sets global variable `current_user` to current username
 sets global variable `current_user_privilege` to current user privilege
 
+
+[1, 2, 3, 4, 5, 6]
+[[1, 2 , 3], [4, 5, 6]]
