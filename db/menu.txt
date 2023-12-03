@@ -1,2 +1,2 @@
 <item> | <price>
-test   | 0000000
+bread    | $10

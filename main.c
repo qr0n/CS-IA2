@@ -1,9 +1,10 @@
 #include <stdio.h>
+#include <string.h>
 FILE* userdb;
 FILE* menudb;
 
 
-void makeUser(char username[20], char password[20])
+void makeUser(const char username[20], const char* password[20])
 {
     char fp[60]; // file path
     char fc[40]; // file content 
@@ -31,17 +32,32 @@ void getMenu()
     fclose(menudb);
 }
 
-void addToMenu(char item[20], int price)
+void addToMenu(const char item[20], int price)
 {
-    char fc[40] =  "%s    | $%d", item, price; // file content
     menudb = fopen("D:/projects/compsci/db/menu.txt", "a");
-    fprintf(menudb, fc); 
+    fprintf(menudb, "\n%s    | $%d", item, price); 
+}
+
+void searchMenu(const char* searchPrefix)
+{
+    char buffer[1024];
+    menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
+
+    while(fgets(buffer, sizeof(buffer), menudb) != NULL){
+        if(strncmp(buffer, searchPrefix, strlen(searchPrefix)) == 0){
+            printf(buffer);
+        }
+    }
 }
 
 int main()
 {
-    printf("Menu Reader\n");
-    // makeUser("username", "password");
-    getMenu();
+    char searchPrefix[256];  // Adjust the size based on your requirements
+    printf("Enter search prefix: ");
+    scanf("%255s", searchPrefix);  // Limit input to prevent buffer overflow
+
+    printf("Search results:\n");
+    searchMenu(searchPrefix);
+
     return 0;
 }
