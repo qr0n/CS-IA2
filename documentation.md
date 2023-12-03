@@ -1,5 +1,5 @@
-`void makeUser(char username[20], char password[20])`
-Accepts 20 bytes on `username` and 20 bytes on `password`.
+`void makeUser(char username[20], char password[20])`\n
+Accepts 20 bytes on `username` and 20 bytes on `password`.\n
 Creates a user in D:/projects/compsci/db/users/<username.txt>
 
 `void getMenu()`
