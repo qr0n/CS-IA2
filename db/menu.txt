@@ -1,0 +1,2 @@
+<item> | <price>
+test   | 0000000
