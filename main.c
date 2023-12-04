@@ -38,11 +38,12 @@ void makeUser(const char username[20], const char password[20])
 
     userdb = fopen(fp, "a");
     sprintf(fc, "%s\n%s", username, password);
+    // fc = <username>\n<password>
     fprintf(userdb, fc);
     fclose(userdb); // Close the file after writing
 }
 
-int login(const char  username[20], const char password[20])
+int login(char username[20], char password[20])
 {
     if(credentialsExist(username, password)){
         printf("Welcome back, %s", username);
@@ -71,7 +72,7 @@ void addToMenu(const char item[20], int price)
     fprintf(menudb, "\n%s    | $%d", item, price); 
 }
 
-void searchMenu(const char searchPrefix)
+void searchMenu(const char *searchPrefix)
 {
     char buffer[1024];
     menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
