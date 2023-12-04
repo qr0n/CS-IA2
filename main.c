@@ -6,7 +6,13 @@ FILE* menudb;
 
 char current_username[20];
 
-int credentialsExist(char *username, char *password) {
+void modifyGlobalVariable(char *variablePointer, const char overwriteContent)
+{
+    *variablePointer = overwriteContent;
+}
+
+int credentialsExist(char username[20], char password[20])
+{
   
   char user[50];
   char pass[8];
@@ -40,6 +46,10 @@ int login(const char  username[20], const char password[20])
 {
     if(credentialsExist(username, password)){
         printf("Welcome back, %s", username);
+        modifyGlobalVariable(&current_username, username);
+    }
+    else {
+        printf("You input the wrong credentials, please check again or ensure that your userfile is created.");
     }
 }
 
@@ -61,7 +71,7 @@ void addToMenu(const char item[20], int price)
     fprintf(menudb, "\n%s    | $%d", item, price); 
 }
 
-void searchMenu(const char* searchPrefix)
+void searchMenu(const char searchPrefix)
 {
     char buffer[1024];
     menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
@@ -84,3 +94,7 @@ int main()
 
     return 0;
 }
+
+/*
+melody is gay
+*/
