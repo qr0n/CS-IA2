@@ -6,11 +6,6 @@ FILE* menudb;
 
 char current_username[20];
 
-void modifyGlobalVariable(char *variablePointer, const char overwriteContent)
-{
-    *variablePointer = overwriteContent;
-}
-
 int credentialsExist(char username[20], char password[20])
 {
   
@@ -18,6 +13,9 @@ int credentialsExist(char username[20], char password[20])
   char pass[8];
   char fp[40];
   sprintf(fp, "%s/%s.txt", "D:/projects/compsci/db/users", username);
+  printf(fp); // debug
+  printf(username); // debug
+  printf(password); // debug
   
   userdb = fopen(fp, "r");
   while (fscanf(userdb, "%s %s", user, pass) == 2) {
@@ -47,7 +45,7 @@ int login(char username[20], char password[20])
 {
     if(credentialsExist(username, password)){
         printf("Welcome back, %s", username);
-        modifyGlobalVariable(&current_username, username);
+        strcpy(current_username, username);
     }
     else {
         printf("You input the wrong credentials, please check again or ensure that your userfile is created.");
@@ -84,16 +82,18 @@ void searchMenu(const char *searchPrefix)
     }
 }
 
+
+// tests
+char helloworld[20] = "hello";
+
+void test()
+{
+    login("username", "password");
+}
+
 int main()
 {
-    char searchPrefix[256];  // Adjust the size based on your requirements
-    printf("Enter search prefix: ");
-    scanf("%255s", searchPrefix);  // Limit input to prevent buffer overflow
-
-    printf("Search results:\n");
-    searchMenu(searchPrefix);
-
-    return 0;
+    test();
 }
 
 /*
