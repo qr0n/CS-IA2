@@ -10,12 +10,12 @@ int credentialsExist(char username[20], char password[20])
 {
   
   char user[50];
-  char pass[8];
+  char pass[20];
   char fp[40];
   sprintf(fp, "%s/%s.txt", "D:/projects/compsci/db/users", username);
-  printf(fp); // debug
-  printf(username); // debug
-  printf(password); // debug
+//   printf(fp); // debug
+//   printf(username); // debug
+//   printf(password); // debug
   
   userdb = fopen(fp, "r");
   while (fscanf(userdb, "%s %s", user, pass) == 2) {
@@ -88,7 +88,19 @@ char helloworld[20] = "hello";
 
 void test()
 {
-    login("username", "password");
+    // login("username", "password");
+    /* 
+    test 1:
+    username: "username",
+    password: "password"
+
+    expected result : "Welcome back, username"
+    Result : "Welcome back, username"
+
+    test 2:
+    # things modified 
+    updated userfile username parameter to "iron"
+    */
 }
 
 int main()
