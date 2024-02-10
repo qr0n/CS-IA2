@@ -30,14 +30,22 @@ int credentialsExist(char username[20], char password[20]) // tested, works
   return 0;
 }
 
-void makeUser(const char username[20], const char password[20]) // tested, works
+void makeUser() // tested, works
 {
     char fp[60]; // file path
     char fc[40]; // file content 
-    sprintf(fp, "%s/%s.txt", "D:/projects/compsci/db/users", username); // appends concatenated string to character array 
+
+    char i_username[20];
+    char i_password[20];
+    printf("Enter the username of the user you'd like to create\n> ");
+    scanf("%s", i_username);
+    printf("Enter the password of the user you'd like to create\n> ");
+    scanf("%s", i_password);
+
+    sprintf(fp, "%s/%s.txt", "D:/projects/compsci/db/users", i_username); // appends concatenated string to character array 
 
     userdb = fopen(fp, "a");
-    sprintf(fc, "%s\n%s", username, password);
+    sprintf(fc, "%s\n%s", i_username, i_password);
     // fc = <username>\n<password>
     fprintf(userdb, fc);
     fclose(userdb); // Close the file after writing
@@ -112,13 +120,35 @@ void sellItem()
 }
 
 void CLI() {
-    printf("Hello, what would you like to do today?\n")
+    int i_operation;
+    int mu_username;
+    printf("Hello, what would you like to do today?\n");
     printf("[1] Make a user\n");
     printf("[2] Get the current menu\n");
     printf("[3] Add an item to the menu\n");
-    printf("[4] Search the menu for a spesific item\n")
-    printf("[5] Sell an item\n")
-    printf("Please enter the ")
+    printf("[4] Search the menu for a spesific item\n");
+    printf("[5] Sell an item\n");
+    printf("Please enter the number correlated to your option of choice.\n> ");
+    scanf("%d", &i_operation);
+    switch (i_operation)
+    {
+    case 1:
+    makeUser();
+    break;
+
+    case 2:
+    getMenu();
+    break;
+
+    case 3:
+    addToMenu();
+    break;
+
+    case 4:
+    searchMenu(); 
+    default:
+        break;
+    }
 }
 
 void test() //boiler plate function only tests individual funcs
@@ -133,10 +163,10 @@ int main() // ENTRYPOINT
 
     printf("Please enter username\n> ");
     scanf("%s", i_username);
-    printf("Please enter passord\n> ");
+    printf("Please enter password\n> ");
     scanf("%s", i_password);
     if(login(i_username, i_password))
     {
-        printf("");
+        CLI();
     }
 }

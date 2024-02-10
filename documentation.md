@@ -11,4 +11,5 @@ This code is a user authentication and menu management system implemented in C.
 - `getMenu()`: Displays the menu items and prices.
 - `addToMenu(const char item[20], int price)`: Adds a new item with its price to the menu.
 - `searchMenu(const char searchPrefix)`: Searches for menu items that start with the specified prefix.
-- `sellItem(char, int, int)` : Adds an entry in sales.txt for the item, price and its quantity sold, user face
+- `sellItem(char, int, int)` : Adds an entry in sales.txt for the item, price and its quantity sold, user face.
+- `CLI` : Provides the user with a list of operations.
