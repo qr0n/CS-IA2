@@ -76,19 +76,32 @@ void getMenu() // userfacing or proxy function
     fclose(menudb);
 }
 
-void addToMenu(const char item[20], int price)
+void addToMenu()
 {
+    char i_item[20];
+    int i_price;
+
+    printf("What would you like to add to the menu?");
+    scanf("%s", i_item);
+
+    printf("What is the price of this item?");
+    scanf("%d", &i_price);
+
     menudb = fopen("D:/projects/compsci/db/menu.txt", "a");
-    fprintf(menudb, "\n%s    | $%d", item, price); 
+    fprintf(menudb, "\n%s    | $%d", i_item, i_price);
+
 }
 
-void searchMenu(const char *searchPrefix) // userfacing function or proxy func
+void searchMenu() // userfacing function or proxy func
 {
+    char *i_searchPrefix;
+    printf("Enter search prefix");
+    scanf("%s", i_searchPrefix);
     char buffer[1024];
     menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
 
     while(fgets(buffer, sizeof(buffer), menudb) != NULL){
-        if(strncmp(buffer, searchPrefix, strlen(searchPrefix)) == 0){
+        if(strncmp(buffer, i_searchPrefix, strlen(i_searchPrefix)) == 0){
             printf(buffer);
         }
     }
@@ -119,9 +132,22 @@ void sellItem()
     fclose(counterdb);
 }
 
-void CLI() {
+void calculateSoldItem()
+{
+    char i_item[20];
+    int i_price, i_quantity;
+
+    counterdb = fopen("D:/projects/compsci/db/sales.txt", "r");
+    while (fscanf(counterdb, "%s %d %d", i_item, &i_price, &i_quantity) == 3) {
+        int i_money_made = i_price * i_quantity;
+        printf("Item: %s, Price: %d, Quantity: %d,\nMoney made from item: %d\n", i_item, i_price, i_quantity, i_money_made);
+    }
+
+}
+void CLI() 
+{
     int i_operation;
-    int mu_username;
+
     printf("Hello, what would you like to do today?\n");
     printf("[1] Make a user\n");
     printf("[2] Get the current menu\n");
@@ -146,27 +172,39 @@ void CLI() {
 
     case 4:
     searchMenu(); 
+    break;
+
+    case 5:
+    sellItem();
+    break;
+
     default:
-        break;
+    break;
     }
 }
 
+
+
 void test() //boiler plate function only tests individual funcs
 {
+    addToMenu();
     sellItem();
+    calculateSoldItem();
 }
 
 int main() // ENTRYPOINT
 {
-    char i_username[20];
-    char i_password[20];
+    // char i_username[20];
+    // char i_password[20];
 
-    printf("Please enter username\n> ");
-    scanf("%s", i_username);
-    printf("Please enter password\n> ");
-    scanf("%s", i_password);
-    if(login(i_username, i_password))
-    {
-        CLI();
-    }
+    // printf("Please enter username\n> ");
+    // scanf("%s", i_username);
+    // printf("Please enter password\n> ");
+    // scanf("%s", i_password);
+    // if(login(i_username, i_password))
+    // {
+    //     CLI();
+    // }
+
+    test();
 }
