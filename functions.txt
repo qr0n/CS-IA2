@@ -1,0 +1,10 @@
+int credentialsExist(char username[20], char password[20]);
+void makeUser();
+int login(char username[20], char password[20]);
+void getMenu();
+void addToMenu();
+void searchMenu();
+void sellItem();
+void CLI();
+void test();
+int main();
