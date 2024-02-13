@@ -1,6 +1,19 @@
 #include <stdio.h>
 #include <string.h>
 
+// Struct for menu items
+struct MenuItem {
+    char name[20];
+    int price;
+};
+
+// Struct for sales records
+struct SalesRecord {
+    char item[20];
+    int price;
+    int quantity;
+};
+
 FILE* userdb;
 FILE* menudb;
 FILE* counterdb;
@@ -65,85 +78,76 @@ int login(char username[20], char password[20]) // tested, works
     }
 }
 
-void getMenu() // userfacing or proxy function 
-{
-    char buffer[1024];
+void getMenu() {
+    struct MenuItem menu_item;
     menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
 
-    while (fgets(buffer, sizeof(buffer), menudb) != NULL) {
-        printf("%s", buffer);
+    while (fscanf(menudb, "%s %d", menu_item.name, &menu_item.price) == 2) {
+        printf("Item: %s, Price: $%d\n", menu_item.name, menu_item.price);
     }
 
     fclose(menudb);
 }
 
-void addToMenu()
-{
-    char i_item[20];
-    int i_price;
+void addToMenu() {
+    struct MenuItem new_item;
 
     printf("What would you like to add to the menu?");
-    scanf("%s", i_item);
+    scanf("%s", new_item.name);
 
     printf("What is the price of this item?");
-    scanf("%d", &i_price);
+    scanf("%d", &new_item.price);
 
     menudb = fopen("D:/projects/compsci/db/menu.txt", "a");
-    fprintf(menudb, "\n%s    | $%d", i_item, i_price);
-
+    fprintf(menudb, "\n%s    | $%d", new_item.name, new_item.price);
+    fclose(menudb);
 }
 
-void searchMenu() // userfacing function or proxy func
-{
-    char *i_searchPrefix;
+void searchMenu() {
+    char i_searchPrefix[20];
     printf("Enter search prefix");
     scanf("%s", i_searchPrefix);
-    char buffer[1024];
+
+    struct MenuItem menu_item;
     menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
 
-    while(fgets(buffer, sizeof(buffer), menudb) != NULL){
-        if(strncmp(buffer, i_searchPrefix, strlen(i_searchPrefix)) == 0){
-            printf(buffer);
+    while (fscanf(menudb, "%s %d", menu_item.name, &menu_item.price) == 2) {
+        if (strncmp(menu_item.name, i_searchPrefix, strlen(i_searchPrefix)) == 0) {
+            printf("Item: %s, Price: $%d\n", menu_item.name, menu_item.price);
         }
     }
+
+    fclose(menudb);
 }
 
-void sellItem() 
-{
-    char i_item[20];
+void sellItem() {
+    struct SalesRecord sold_item;
+
     printf("What has been sold? ");
-    scanf("%19s", i_item); // Limit input to 19 characters to avoid buffer overflow
+    scanf("%19s", sold_item.item);
 
-    int i_price;
     printf("What is the price of the item sold? ");
-    scanf("%d", &i_price);
+    scanf("%d", &sold_item.price);
 
-    int i_quantity;
     printf("How many of those have been sold? ");
-    scanf("%d", &i_quantity);
+    scanf("%d", &sold_item.quantity);
 
-    FILE *counterdb = fopen("D:/projects/compsci/db/sales.txt", "a");
-    if (counterdb == NULL) {
-        fprintf(stderr, "Error opening file.\n");
-        return;
-    }
-
-    fprintf(counterdb, "%s %d %d\n", i_item, i_price, i_quantity);
-
+    counterdb = fopen("D:/projects/compsci/db/sales.txt", "a");
+    fprintf(counterdb, "%s %d %d\n", sold_item.item, sold_item.price, sold_item.quantity);
     fclose(counterdb);
 }
 
-void calculateSoldItem()
-{
-    char i_item[20];
-    int i_price, i_quantity;
+void calculateSoldItem() {
+    struct SalesRecord sold_item;
 
     counterdb = fopen("D:/projects/compsci/db/sales.txt", "r");
-    while (fscanf(counterdb, "%s %d %d", i_item, &i_price, &i_quantity) == 3) {
-        int i_money_made = i_price * i_quantity;
-        printf("Item: %s, Price: %d, Quantity: %d,\nMoney made from item: %d\n", i_item, i_price, i_quantity, i_money_made);
+    while (fscanf(counterdb, "%s %d %d", sold_item.item, &sold_item.price, &sold_item.quantity) == 3) {
+        int money_made = sold_item.price * sold_item.quantity;
+        printf("Item: %s, Price: $%d, Quantity: %d, Money made from item: $%d\n", 
+            sold_item.item, sold_item.price, sold_item.quantity, money_made);
     }
 
+    fclose(counterdb);
 }
 
 void CLI() 

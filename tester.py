@@ -42,9 +42,9 @@ def generate_markdown(title, input_description, input_data_1, input_data_2, expe
 
 # Test scenarios
 test_scenarios = [
-    {"title": "Normal Scenario", "input_1": "", "input_2": "normal input 2", "expected_output": "expected output here"},
-    {"title": "Extreme Scenario", "input_1": "extreme input 1", "input_2": "extreme input 2", "expected_output": "expected output here"},
-    {"title": "Erroneous Scenario", "input_1": "erroneous input 1", "input_2": "erroneous input 2", "expected_output": "expected output here"}
+    {"title": "Normal Scenario", "input_1": "username", "input_2": "password", "expected_output": "User created"},
+    {"title": "Extreme Scenario", "Us34N4m3": "extreme input 1", "input_2": "P$ssW0R1", "expected_output": "User created"},
+    {"title": "Erroneous Scenario", "input_1": "1", "input_2": "2", "expected_output": "User created"}
 ]
 
 # Generate and print Markdown for each scenario
