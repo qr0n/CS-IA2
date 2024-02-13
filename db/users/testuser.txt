@@ -1,4 +1,0 @@
-testuser
-testpassstestuser
-testpasstestuser
-testpass

@@ -12,7 +12,8 @@ def run_c_code(test_input):
 
 # Function to generate formatted Markdown for test results
 def generate_markdown(title, input_description, input_data_1, input_data_2, expected_output, actual_output):
-    markdown = dedent(f"""
+    with open("results.md", "a") as results:
+        markdown = dedent(f"""
         ## {title}
 
         **Input Description:**
@@ -38,12 +39,14 @@ def generate_markdown(title, input_description, input_data_1, input_data_2, expe
         {actual_output}
         ```
     """)
+        results.write(markdown)
     return markdown
 
 # Test scenarios
+# Test scenarios
 test_scenarios = [
     {"title": "Normal Scenario", "input_1": "username", "input_2": "password", "expected_output": "User created"},
-    {"title": "Extreme Scenario", "Us34N4m3": "extreme input 1", "input_2": "P$ssW0R1", "expected_output": "User created"},
+    {"title": "Extreme Scenario", "input_1": "Us34N4m3", "input_2": "P$ssW0R1", "expected_output": "User created"},
     {"title": "Erroneous Scenario", "input_1": "1", "input_2": "2", "expected_output": "User created"}
 ]
 

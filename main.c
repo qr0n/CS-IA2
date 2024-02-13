@@ -192,17 +192,17 @@ void test() //boiler plate function only tests individual funcs
 
 int main() // ENTRYPOINT
 {
-    char i_username[20];
-    char i_password[20];
+    // char i_username[20];
+    // char i_password[20];
 
-    printf("Please enter username\n> ");
-    scanf("%s", i_username);
-    printf("Please enter password\n> ");
-    scanf("%s", i_password);
-    if(login(i_username, i_password))
-    {
-        CLI();
-    }
+    // printf("Please enter username\n> ");
+    // scanf("%s", i_username);
+    // printf("Please enter password\n> ");
+    // scanf("%s", i_password);
+    // if(login(i_username, i_password))
+    // {
+    //     CLI();
+    // }
 
-    //test();
+    test();
 }
