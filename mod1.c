@@ -43,33 +43,13 @@ int credentialsExist(char username[20], char password[20]) // tested, works
   return 0;
 }
 
-void makeUser() // tested, works
-{
-    char fp[60]; // file path
-    char fc[40]; // file content 
 
-    char i_username[20];
-    char i_password[20];
-    printf("Enter the username of the user you'd like to create\n> ");
-    scanf("%s", i_username);
-    printf("Enter the password of the user you'd like to create\n> ");
-    scanf("%s", i_password);
-
-    sprintf(fp, "%s/%s.txt", "D:/projects/compsci/db/users", i_username); // appends concatenated string to character array 
-
-    userdb = fopen(fp, "a");
-    sprintf(fc, "%s\n%s", i_username, i_password);
-    // fc = <username>\n<password>
-    fprintf(userdb, fc);
-    fclose(userdb); // Close the file after writing
-    printf("User created");
-}
 
 int login(char username[20], char password[20]) // tested, works
 {
     if(credentialsExist(username, password)){
         printf("Welcome back, %s", username);
-        strcpy(current_username, username);
+        
         return 1; // add injection base for userfacing functions DONOT FORGET IT WILL BRICK UR CODE
     }
     else {
@@ -150,38 +130,38 @@ void calculateSoldItem() {
     fclose(counterdb);
 }
 
-void CLI() 
+void CLI(char username[20]) 
 {
     int i_operation;
 
-    printf("Hello, what would you like to do today?\n");
-    printf("[1] Make a user\n");
-    printf("[2] Get the current menu\n");
-    printf("[3] Add an item to the menu\n");
-    printf("[4] Search the menu for a spesific item\n");
-    printf("[5] Sell an item\n");
+    printf("Welcome %s, what would you like to do today?\n", username);
+    printf("[1] Get the current menu\n");
+    printf("[2] Add an item to the menu\n");
+    printf("[3] Search the menu for a spesific item\n");
+    printf("[4] Sell an item\n");
+    printf("[5] Calaculate amount of item sold\n");
     printf("Please enter the number correlated to your option of choice.\n> ");
     scanf("%d", &i_operation);
     switch (i_operation)
     {
     case 1:
-    makeUser();
-    break;
-
-    case 2:
     getMenu();
     break;
 
-    case 3:
+    case 2:
     addToMenu();
     break;
 
-    case 4:
+    case 3:
     searchMenu(); 
     break;
 
-    case 5:
+    case 4:
     sellItem();
+    break;
+
+    case 5:
+    calculateSoldItem();
     break;
 
     default:
@@ -189,24 +169,63 @@ void CLI()
     }
 }
 
-void test() //boiler plate function only tests individual funcs
+void makeUser() // tested, works
 {
-    makeUser();
+    char fp[60]; // file path
+    char fc[40]; // file content 
+
+    char i_username[20];
+    char i_password[20];
+    printf("Enter the username of the user you'd like to create\n> ");
+    scanf("%s", i_username);
+    printf("Enter the password of the user you'd like to create\n> ");
+    scanf("%s", i_password);
+
+    sprintf(fp, "%s/%s.txt", "D:/projects/compsci/db/users", i_username); // appends concatenated string to character array 
+
+    userdb = fopen(fp, "a");
+    sprintf(fc, "%s\n%s", i_username, i_password);
+    // fc = <username>\n<password>
+    fprintf(userdb, fc);
+    fclose(userdb); // Close the file after writing
+    printf("`%s`, User created\n", i_username);
+    strcpy(current_username, i_username);
+    CLI(i_username);
+    
 }
 
 int main() // ENTRYPOINT
 {
-    char i_username[20];
-    char i_password[20];
+    // char i_username[20];
+    // char i_password[20];
+    // int option;
 
-    printf("Please enter username\n> ");
-    scanf("%s", i_username);
-    printf("Please enter password\n> ");
-    scanf("%s", i_password);
-    if(login(i_username, i_password))
-    {
-        CLI();
-    }
+    // printf("Welcome to the York Castle canteen POS\n");
+    // printf("Enter 1 to make an account or 2 to login\n> ");
+    // scanf("%d", &option);
+    // switch (option) {
+    //     case 1:
+    //     makeUser();
+    //     break;
 
-    //test();
+    //     case 2:
+    //     printf("Please enter username\n> ");
+    //     scanf("%s", i_username);
+    //     printf("Please enter password\n> ");
+    //     scanf("%s", i_password);
+    //     if(login(i_username, i_password)) {
+    //         printf("Welcome, %s", i_username);
+    //         CLI(i_username);
+    //     }
+    //     else {
+    //         printf("Please check credentials and ensure your userfile exists");
+    //     }
+
+    //     break;
+        
+    //     default:
+    //     break;
+    // }
+
+    getMenu();
 }

@@ -3,9 +3,9 @@ from textwrap import dedent
 
 # Function to run the C code with different scenarios
 def run_c_code(test_input):
-    result = subprocess.run(["gcc", "main.c", "-o", "main.exe"])
+    result = subprocess.run(["gcc", "mod1.c", "-o", "mod1.exe"])
     if result.returncode == 0:
-        process = subprocess.run(["./main.exe"], input=test_input, text=True, capture_output=True)
+        process = subprocess.run(["./mod1.exe"], input=test_input, text=True, capture_output=True)
         return process.stdout
     else:
         return "Compilation Error"
@@ -45,8 +45,8 @@ def generate_markdown(title, input_description, input_data_1, input_data_2, expe
 # Test scenarios
 # Test scenarios
 test_scenarios = [
-    {"title": "Normal Scenario", "input_1": "username", "input_2": "password", "expected_output": "User created"},
-    {"title": "Extreme Scenario", "input_1": "Us34N4m3", "input_2": "P$ssW0R1", "expected_output": "User created"},
+    {"title": "Normal Scenario", "input_1": "", "input_2": "", "expected_output": ""},
+    {"title": "Extreme Scenario", "input_1": "", "input_2": "", "expected_output": "User created"},
     {"title": "Erroneous Scenario", "input_1": "1", "input_2": "2", "expected_output": "User created"}
 ]
 

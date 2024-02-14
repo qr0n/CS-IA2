@@ -1,5 +1,2 @@
 <item> | <price>
 bread    | $10
-
-dog    | $12
-cat    | $100

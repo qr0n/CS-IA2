@@ -187,7 +187,7 @@ void CLI()
 
 void test() //boiler plate function only tests individual funcs
 {
-    makeUser();
+    getMenu();
 }
 
 int main() // ENTRYPOINT
