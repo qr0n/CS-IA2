@@ -21,16 +21,16 @@ FILE* counterdb;
 char current_username[20];
 int is_logged_in;
 
-int credentialsExist(char username[20], char password[20]) // tested, works
+// Takes 2 arguments `username` and `password` opens user file 
+// And checks if credentials input are correct returns 1 upon success
+
+int credentialsExist(char username[20], char password[20])
 {
   
   char user[50];
   char pass[20];
   char fp[40];
   sprintf(fp, "%s/%s.txt", "D:/projects/compsci/db/users", username);
-//   printf(fp); // debug
-//   printf(username); // debug
-//   printf(password); // debug
   
   userdb = fopen(fp, "r");
   while (fscanf(userdb, "%s %s", user, pass) == 2) {
@@ -43,12 +43,13 @@ int credentialsExist(char username[20], char password[20]) // tested, works
   return 0;
 }
 
-int login(char username[20], char password[20]) // tested, works
+// Takes 2 arguments `username` and `password` calls credentialsExist and passes arguments
+
+int login(char username[20], char password[20])
 {
     if(credentialsExist(username, password)){
-        //printf("Welcome back, %s", username);
         
-        return 1; // add injection base for userfacing functions DONOT FORGET IT WILL BRICK UR CODE
+        return 1;
     }
     else {
         printf("You input the wrong credentials, please check again or ensure that your userfile is created.");
@@ -56,7 +57,10 @@ int login(char username[20], char password[20]) // tested, works
     }
 }
 
-void getMenu() {
+// Returns current menu to user through stdout
+
+void getMenu()
+{
     struct MenuItem {
         char name[20];
         int price;
@@ -70,7 +74,10 @@ void getMenu() {
     fclose(menudb);
 }
 
-void addToMenu() {
+// Adds an item to the menu along with price
+
+void addToMenu()
+{
     struct MenuItem {
         char name[20];
         int price;
@@ -87,9 +94,13 @@ void addToMenu() {
     fclose(menudb);
 }
 
-int searchMenu() {
+// Accepts search prefix and indexes menu file based off of item
+// And returns item name & item price formatted
+
+int searchMenu()
+{
     char i_searchPrefix[20];
-    printf("Enter search prefix: ");
+    printf("Enter search prefix\n> ");
     scanf("%19s", i_searchPrefix);
 
     FILE *menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
@@ -117,13 +128,16 @@ int searchMenu() {
     return matchCount;
 }
 
-void sellItem() {
+// Accepts item name, price and quantity sold and appends it to a database
+
+void sellItem()
+{
     struct SalesRecord sold_item;
 
-    printf("What has been sold? ");
+    printf("What has been sold?\n> ");
     scanf("%19s", sold_item.item);
 
-    printf("What is the price of the item sold? ");
+    printf("What is the price of the item sold?\n> ");
     scanf("%d", &sold_item.price);
 
     printf("How many of those have been sold? ");
@@ -134,7 +148,10 @@ void sellItem() {
     fclose(counterdb);
 }
 
-void calculateSoldItem() {
+// Calculates every item sold along with money made and price it was sold for
+
+void calculateSoldItem()
+{
     struct SalesRecord sold_item;
 
     counterdb = fopen("D:/projects/compsci/db/sales.txt", "r");
@@ -147,7 +164,9 @@ void calculateSoldItem() {
     fclose(counterdb);
 }
 
-void CLI(char username[20], int reinit) {
+// Prompt for user to select action 1-5
+
+void CLI(char *username, int reinit) {
     
     int i_operation;
 
@@ -200,7 +219,9 @@ void CLI(char username[20], int reinit) {
     }
 }
 
-void makeUser() // tested, works
+// Accepts username and password for new user to be made in system
+
+void makeUser() 
 {
     char fp[60]; // file path
     char fc[40]; // file content 
@@ -225,7 +246,9 @@ void makeUser() // tested, works
     
 }
 
-int main() // ENTRYPOINT
+// Entrypoint
+
+int main()
 {
     char i_username[20];
     char i_password[20];
@@ -253,9 +276,7 @@ int main() // ENTRYPOINT
         }
 
         break;
-        
-        case 3:
-        CLI("", 0);
+
         default:
         break;
     }
