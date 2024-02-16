@@ -93,16 +93,17 @@ void addToMenu()
 
 }
 
-void searchMenu() // userfacing function or proxy func
+void searchMenu(char item[20]) // userfacing function or proxy func
 {
-    char *i_searchPrefix;
-    printf("Enter search prefix");
-    scanf("%s", i_searchPrefix);
+    //char *i_searchPrefix[20] = item;
+    // printf("Enter search prefix");
+    // scanf("%s", i_searchPrefix);
+
     char buffer[1024];
     menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
 
     while(fgets(buffer, sizeof(buffer), menudb) != NULL){
-        if(strncmp(buffer, i_searchPrefix, strlen(i_searchPrefix)) == 0){
+        if(strncmp(buffer, item, strlen(item)) == 0){
             printf(buffer);
         }
     }
@@ -173,7 +174,7 @@ void CLI()
     break;
 
     case 4:
-    searchMenu(); 
+    //searchMenu(); 
     break;
 
     case 5:
@@ -187,7 +188,7 @@ void CLI()
 
 void test() //boiler plate function only tests individual funcs
 {
-    getMenu();
+    searchMenu("bread");
 }
 
 int main() // ENTRYPOINT

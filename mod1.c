@@ -43,12 +43,10 @@ int credentialsExist(char username[20], char password[20]) // tested, works
   return 0;
 }
 
-
-
 int login(char username[20], char password[20]) // tested, works
 {
     if(credentialsExist(username, password)){
-        printf("Welcome back, %s", username);
+        //printf("Welcome back, %s", username);
         
         return 1; // add injection base for userfacing functions DONOT FORGET IT WILL BRICK UR CODE
     }
@@ -59,7 +57,10 @@ int login(char username[20], char password[20]) // tested, works
 }
 
 void getMenu() {
-    struct MenuItem menu_item;
+    struct MenuItem {
+        char name[20];
+        int price;
+    } menu_item;
     menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
 
     while (fscanf(menudb, "%s %d", menu_item.name, &menu_item.price) == 2) {
@@ -70,7 +71,10 @@ void getMenu() {
 }
 
 void addToMenu() {
-    struct MenuItem new_item;
+    struct MenuItem {
+        char name[20];
+        int price;
+    } new_item;
 
     printf("What would you like to add to the menu?");
     scanf("%s", new_item.name);
@@ -79,25 +83,38 @@ void addToMenu() {
     scanf("%d", &new_item.price);
 
     menudb = fopen("D:/projects/compsci/db/menu.txt", "a");
-    fprintf(menudb, "\n%s    | $%d", new_item.name, new_item.price);
+    fprintf(menudb, "%s %d", new_item.name, new_item.price);
     fclose(menudb);
 }
 
-void searchMenu() {
+int searchMenu() {
     char i_searchPrefix[20];
-    printf("Enter search prefix");
-    scanf("%s", i_searchPrefix);
+    printf("Enter search prefix: ");
+    scanf("%19s", i_searchPrefix);
 
-    struct MenuItem menu_item;
-    menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
+    FILE *menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
+    if (menudb == NULL) {
+        perror("Error opening file");
+        return -1;  // Indicate failure
+    }
 
-    while (fscanf(menudb, "%s %d", menu_item.name, &menu_item.price) == 2) {
+    struct MenuItem {
+        char name[20];
+        int price;
+    } menu_item;
+
+    int matchCount = 0;
+
+    while (fscanf(menudb, "%19s %d", menu_item.name, &menu_item.price) == 2) {
         if (strncmp(menu_item.name, i_searchPrefix, strlen(i_searchPrefix)) == 0) {
             printf("Item: %s, Price: $%d\n", menu_item.name, menu_item.price);
+            matchCount++;
         }
     }
 
     fclose(menudb);
+
+    return matchCount;
 }
 
 void sellItem() {
@@ -130,42 +147,56 @@ void calculateSoldItem() {
     fclose(counterdb);
 }
 
-void CLI(char username[20]) 
-{
+void CLI(char username[20], int reinit) {
+    
     int i_operation;
 
-    printf("Welcome %s, what would you like to do today?\n", username);
+    if(reinit){
+        printf("Welcome %s, what would you like to do today?\n", username);
+    }
+    
     printf("[1] Get the current menu\n");
     printf("[2] Add an item to the menu\n");
-    printf("[3] Search the menu for a spesific item\n");
+    printf("[3] Search the menu for a specific item\n");
     printf("[4] Sell an item\n");
-    printf("[5] Calaculate amount of item sold\n");
+    printf("[5] Calculate amount of item sold\n");
     printf("Please enter the number correlated to your option of choice.\n> ");
     scanf("%d", &i_operation);
-    switch (i_operation)
-    {
-    case 1:
-    getMenu();
-    break;
+    
+    switch (i_operation) {
+        case 1:
+            getMenu();
+            CLI("", 0);
+            break;
 
-    case 2:
-    addToMenu();
-    break;
+        case 2:
+            addToMenu();
+            CLI("", 0);
+            break;
 
-    case 3:
-    searchMenu(); 
-    break;
+        case 3:
+        int result = searchMenu();
+        if (result == -1) {
+            printf("Failed to open menu file.\n");
+        }
+        else {
+            printf("Found %d matching items.\n", result);
+            }
+            CLI("", 0);
+            break;
 
-    case 4:
-    sellItem();
-    break;
+        case 4:
+            sellItem();
+            CLI("", 0);
+            break;
 
-    case 5:
-    calculateSoldItem();
-    break;
+        case 5:
+            calculateSoldItem();
+            CLI("", 0);
+            break;
 
-    default:
-    break;
+        default:
+            break;
     }
 }
 
@@ -190,42 +221,42 @@ void makeUser() // tested, works
     fclose(userdb); // Close the file after writing
     printf("`%s`, User created\n", i_username);
     strcpy(current_username, i_username);
-    CLI(i_username);
+    CLI(i_username, 0);
     
 }
 
 int main() // ENTRYPOINT
 {
-    // char i_username[20];
-    // char i_password[20];
-    // int option;
+    char i_username[20];
+    char i_password[20];
+    int option;
 
-    // printf("Welcome to the York Castle canteen POS\n");
-    // printf("Enter 1 to make an account or 2 to login\n> ");
-    // scanf("%d", &option);
-    // switch (option) {
-    //     case 1:
-    //     makeUser();
-    //     break;
+    printf("Welcome to the York Castle canteen POS\n");
+    printf("Enter 1 to make an account or 2 to login\n> ");
+    scanf("%d", &option);
+    switch (option) {
+        case 1:
+        makeUser();
+        break;
 
-    //     case 2:
-    //     printf("Please enter username\n> ");
-    //     scanf("%s", i_username);
-    //     printf("Please enter password\n> ");
-    //     scanf("%s", i_password);
-    //     if(login(i_username, i_password)) {
-    //         printf("Welcome, %s", i_username);
-    //         CLI(i_username);
-    //     }
-    //     else {
-    //         printf("Please check credentials and ensure your userfile exists");
-    //     }
+        case 2:
+        printf("Please enter username\n> ");
+        scanf("%s", i_username);
+        printf("Please enter password\n> ");
+        scanf("%s", i_password);
+        if(login(i_username, i_password)) {
+            //printf("Welcome, %s", i_username);
+            CLI(i_username, 1);
+        }
+        else {
+            printf("Please check credentials and ensure your userfile exists");
+        }
 
-    //     break;
+        break;
         
-    //     default:
-    //     break;
-    // }
-
-    getMenu();
+        case 3:
+        CLI("", 0);
+        default:
+        break;
+    }
 }

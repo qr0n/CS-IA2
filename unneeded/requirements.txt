@@ -33,3 +33,4 @@ menu items
 data storage
 use switch statements coz cool
 prompt user politely 
+continus end function kinda 

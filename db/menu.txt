@@ -1,2 +1,1 @@
-<item> | <price>
-bread    | $10
+test 0bran 120
