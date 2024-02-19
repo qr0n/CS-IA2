@@ -2,3 +2,5 @@ dogs 10 300
 dog 12 100
 cat 100 10
 test 0 21
+chips 10 200
+chips 10 20

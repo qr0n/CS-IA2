@@ -17,8 +17,8 @@ Allow the supervising staff to see the different food items off the menu
 Allow the supervising staff to add or remove food items off the menu
 Allow the supervising staff to see the prices of the food
 Allow the supervising staff to see how much of a specific item has been sold for a day
-Allow the supervising staff to see how much profit a specific food item profits for a certain day
-
+Allow the supervising staff to see how much revenue made for a certain day
+When something is sold, the stock/inventory is updated to reflect what is remaining
 
 Non-functional requirements:
 
@@ -34,3 +34,5 @@ data storage
 use switch statements coz cool
 prompt user politely 
 continus end function kinda 
+add fixed quantity  function to this thing
+make calculate sold function cool :thumbs up:

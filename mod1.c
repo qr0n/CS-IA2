@@ -134,13 +134,13 @@ void sellItem()
 {
     struct SalesRecord sold_item;
 
-    printf("What has been sold?\n> ");
+    printf("What item does the student want to purchase?\n> ");
     scanf("%19s", sold_item.item);
 
-    printf("What is the price of the item sold?\n> ");
+    printf("What is the price of the item you are selling?\n> ");
     scanf("%d", &sold_item.price);
 
-    printf("How many of those have been sold? ");
+    printf("How many of these are you selling?\n> ");
     scanf("%d", &sold_item.quantity);
 
     counterdb = fopen("D:/projects/compsci/db/sales.txt", "a");
@@ -164,7 +164,7 @@ void calculateSoldItem()
     fclose(counterdb);
 }
 
-// Prompt for user to select action 1-5
+// Prompt for user to select action 1-6
 
 void CLI(char *username, int reinit) {
     
@@ -179,6 +179,7 @@ void CLI(char *username, int reinit) {
     printf("[3] Search the menu for a specific item\n");
     printf("[4] Sell an item\n");
     printf("[5] Calculate amount of item sold\n");
+    printf("[6] Exit the program.");
     printf("Please enter the number correlated to your option of choice.\n> ");
     scanf("%d", &i_operation);
     
@@ -214,6 +215,9 @@ void CLI(char *username, int reinit) {
             CLI("", 0);
             break;
 
+        case 6:
+        exit();
+        break;
         default:
             break;
     }
@@ -235,7 +239,7 @@ void makeUser()
 
     sprintf(fp, "%s/%s.txt", "D:/projects/compsci/db/users", i_username); // appends concatenated string to character array 
 
-    userdb = fopen(fp, "a");
+    userdb = fopen(fp, "w");
     sprintf(fc, "%s\n%s", i_username, i_password);
     // fc = <username>\n<password>
     fprintf(userdb, fc);
