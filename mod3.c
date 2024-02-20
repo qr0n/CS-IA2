@@ -1,15 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 
-// Struct for menu items
+#define MAX_ITEM_NAME_LENGTH 20
+
 struct MenuItem {
-    char name[20];
+    char name[MAX_ITEM_NAME_LENGTH];
     int price;
+    int quantity;
 };
 
-// Struct for sales records
 struct SalesRecord {
-    char item[20];
+    char item[MAX_ITEM_NAME_LENGTH];
     int price;
     int quantity;
 };
@@ -19,7 +20,6 @@ FILE* menudb;
 FILE* counterdb;
 
 char current_username[20];
-int is_logged_in;
 
 // Takes 2 arguments `username` and `password` opens user file 
 // And checks if credentials input are correct returns 1 upon success
@@ -64,33 +64,38 @@ void getMenu()
     struct MenuItem {
         char name[20];
         int price;
+        int quantity;
     } menu_item;
     menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
 
-    while (fscanf(menudb, "%s %d", menu_item.name, &menu_item.price) == 2) {
-        printf("Item: %s, Price: $%d\n", menu_item.name, menu_item.price);
+    while (fscanf(menudb, "%s %d %d", menu_item.name, &menu_item.price, &menu_item.quantity) == 3) {
+        printf("Item: %s, Price: $%d, Quantity: %d\n", menu_item.name, menu_item.price, menu_item.quantity);
     }
 
     fclose(menudb);
 }
 
-// Adds an item to the menu along with price
+// Adds an item to the menu along with price and quantity
 
 void addToMenu()
 {
     struct MenuItem {
         char name[20];
         int price;
+        int quantity;
     } new_item;
 
-    printf("What would you like to add to the menu?");
+    printf("What would you like to add to the menu?\n> ");
     scanf("%s", new_item.name);
 
-    printf("What is the price of this item?");
+    printf("What is the price of this item?\n> ");
     scanf("%d", &new_item.price);
 
+    printf("How much of this item are you adding?\n> ");
+    scanf("%d", &new_item.quantity);
+
     menudb = fopen("D:/projects/compsci/db/menu.txt", "a");
-    fprintf(menudb, "%s %d", new_item.name, new_item.price);
+    fprintf(menudb, "%s %d %d", new_item.name, new_item.price, new_item.quantity);
     fclose(menudb);
 }
 
@@ -112,13 +117,14 @@ int searchMenu()
     struct MenuItem {
         char name[20];
         int price;
+        int quantity;
     } menu_item;
 
     int matchCount = 0;
 
-    while (fscanf(menudb, "%19s %d", menu_item.name, &menu_item.price) == 2) {
+    while (fscanf(menudb, "%19s %d %d", menu_item.name, &menu_item.price, &menu_item.quantity) == 3) {
         if (strncmp(menu_item.name, i_searchPrefix, strlen(i_searchPrefix)) == 0) {
-            printf("Item: %s, Price: $%d\n", menu_item.name, menu_item.price);
+            printf("Item: %s, Price: $%d, Quantity: %d\n", menu_item.name, menu_item.price, menu_item.quantity);
             matchCount++;
         }
     }
@@ -132,41 +138,144 @@ int searchMenu()
 
 void sellItem()
 {
-    struct SalesRecord sold_item;
+    struct MenuItem {
+        char name[MAX_ITEM_NAME_LENGTH];
+        int price;
+        int quantity;
+        } menu_item;
+
+    struct SalesRecord {
+        char item[MAX_ITEM_NAME_LENGTH];
+        int price;
+        int quantity;
+    } sold_item;
+
 
     printf("What item does the student want to purchase?\n> ");
     scanf("%19s", sold_item.item);
 
-    printf("What is the price of the item you are selling?\n> ");
-    scanf("%d", &sold_item.price);
+    FILE *menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
+    if (menudb == NULL) {
+        perror("Error opening menu file");
+        return;
+    }
+
+    // Check if the item is in the menu
+    int itemFound = 0;
+    while (fscanf(menudb, "%19s %d %d", menu_item.name, &menu_item.price, &menu_item.quantity) == 3) {
+        if (strcmp(menu_item.name, sold_item.item) == 0) {
+            itemFound = 1;
+            break;
+        }
+    }
+
+    fclose(menudb);
+
+    if (!itemFound) {
+        printf("Item not found in the menu.\n");
+        return;
+    }
 
     printf("How many of these are you selling?\n> ");
     scanf("%d", &sold_item.quantity);
 
-    counterdb = fopen("D:/projects/compsci/db/sales.txt", "a");
-    fprintf(counterdb, "%s %d %d\n", sold_item.item, sold_item.price, sold_item.quantity);
+    if (sold_item.quantity <= 0) {
+        printf("Invalid quantity.\n");
+        return;
+    }
+
+    // Check if there is enough stock
+    if (menu_item.quantity < sold_item.quantity) {
+        printf("Not enough stock available for %s.\n", sold_item.item);
+        return;
+    }
+
+    // Deduct from the stock
+    int new_item_quantity = menu_item.quantity - sold_item.quantity;
+
+    // Update the menu file with the new stock
+    menudb = fopen("D:/projects/compsci/db/menu.txt", "r");
+    FILE *tempdb = fopen("D:/projects/compsci/db/temp_menu.txt", "w");
+
+    while (fscanf(menudb, "%19s %d %d", menu_item.name, &menu_item.price, &menu_item.quantity) == 3) {
+        if (strcmp(menu_item.name, sold_item.item) == 0) {
+            fprintf(tempdb, "%s %d %d\n", menu_item.name, menu_item.price, new_item_quantity);
+        }
+        else {
+            fprintf(tempdb, "%s %d %d\n", menu_item.name, menu_item.price, menu_item.quantity);
+        }
+    }
+
+    fclose(menudb);
+    fclose(tempdb);
+
+    remove("D:/projects/compsci/db/menu.txt");
+    rename("D:/projects/compsci/db/temp_menu.txt", "D:/projects/compsci/db/menu.txt");
+
+    // Add the sale to the sales records
+    FILE *counterdb = fopen("D:/projects/compsci/db/sales.txt", "a");
+    fprintf(counterdb, "%s %d %d\n", sold_item.item, menu_item.price, sold_item.quantity);
     fclose(counterdb);
+
+    printf("Sale recorded successfully.\n");
 }
 
 // Calculates every item sold along with money made and price it was sold for
 
-void calculateSoldItem()
-{
+void calculateSoldItem() {
     struct SalesRecord sold_item;
 
-    counterdb = fopen("D:/projects/compsci/db/sales.txt", "r");
+    FILE* counterdb = fopen("D:/projects/compsci/db/sales.txt", "r");
+    if (counterdb == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    // Use arrays to store information for each unique item
+    char items[100][50];
+    int quantities[100] = {0};  // Initialize quantities to zero
+    int prices[100];
+    int count = 0;
+
     while (fscanf(counterdb, "%s %d %d", sold_item.item, &sold_item.price, &sold_item.quantity) == 3) {
-        int money_made = sold_item.price * sold_item.quantity;
-        printf("Item: %s, Price: $%d, Quantity: %d, Money made from item: $%d\n", 
-            sold_item.item, sold_item.price, sold_item.quantity, money_made);
+        int index = -1;
+
+        // Check if the item is already in the array
+        for (int i = 0; i < count; i++) {
+            if (strcmp(items[i], sold_item.item) == 0) {
+                index = i;
+                break;
+            }
+        }
+
+        // If the item is not in the array, add it
+        if (index == -1) {
+            strcpy(items[count], sold_item.item);
+            quantities[count] = sold_item.quantity;
+            prices[count] = sold_item.price;
+            count++;
+        } else {
+            // If the item is already in the array, update the quantity
+            quantities[index] += sold_item.quantity;
+            prices[index] += sold_item.price;
+        }
     }
 
     fclose(counterdb);
+
+    // Print the consolidated information
+    for (int i = 0; i < count; i++) {
+        int money_made = prices[i] * quantities[i];
+        printf("Item: %s, Price per unit: $%d, Total Quantity: %d, Total Money made from item: $%d\n",
+               items[i], prices[i], quantities[i], money_made);
+    }
+    CLI("", 0);
 }
 
 // Prompt for user to select action 1-6
 
-void CLI(char *username, int reinit) {
+void CLI(char *username, int reinit)
+{
     
     int i_operation;
 
@@ -179,7 +288,7 @@ void CLI(char *username, int reinit) {
     printf("[3] Search the menu for a specific item\n");
     printf("[4] Sell an item\n");
     printf("[5] Calculate amount of item sold\n");
-    printf("[6] Exit the program.");
+    printf("[6] Exit the program\n");
     printf("Please enter the number correlated to your option of choice.\n> ");
     scanf("%d", &i_operation);
     
@@ -216,7 +325,6 @@ void CLI(char *username, int reinit) {
             break;
 
         case 6:
-        exit();
         break;
         default:
             break;
@@ -278,7 +386,10 @@ int main()
         else {
             printf("Please check credentials and ensure your userfile exists");
         }
+        break;
 
+        case 3:
+        calculateSoldItem();
         break;
 
         default:

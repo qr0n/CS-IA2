@@ -1,1 +1,4 @@
-test 0bran 120chips 10
+test 10 0
+beans 1 100
+thousand 1 222
+nahida 1 1000
