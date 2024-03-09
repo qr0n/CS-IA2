@@ -1,0 +1,262 @@
+CONST MAX_ITEM_NAME_LENGTH = 20
+
+STRUCT MenuItem
+    name: ARRAY OF CHARACTERS OF LENGTH MAX_ITEM_NAME_LENGTH
+    price: INTEGER
+    quantity: INTEGER
+
+STRUCT SalesRecord
+    item: ARRAY OF CHARACTERS OF LENGTH MAX_ITEM_NAME_LENGTH
+    price: INTEGER
+    quantity: INTEGER
+
+FILE userdb
+FILE menudb
+FILE counterdb
+CHARACTER ARRAY current_username OF LENGTH 20
+
+FUNCTION credentialsExist(username: ARRAY OF CHARACTERS OF LENGTH 20, password: ARRAY OF CHARACTERS OF LENGTH 20) -> BOOLEAN
+    OPEN FILE userdb WITH PATH "D:/projects/compsci/db/users/" + username + ".txt" FOR READING
+    WHILE NOT END OF FILE userdb
+        READ user, pass FROM userdb
+        IF username EQUALS user AND password EQUALS pass THEN
+            CLOSE userdb
+            RETURN TRUE
+        END IF
+    END WHILE
+    CLOSE userdb
+    RETURN FALSE
+
+FUNCTION login(username: ARRAY OF CHARACTERS OF LENGTH 20, password: ARRAY OF CHARACTERS OF LENGTH 20) -> INTEGER
+    IF credentialsExist(username, password) THEN
+        PRINT "Welcome " + username + ", what would you like to do today?"
+        RETURN 1
+    ELSE
+        PRINT "Invalid credentials. Please check again or ensure that your userfile is created."
+        RETURN 0
+    END IF
+
+FUNCTION getMenu()
+    OPEN FILE menudb WITH PATH "D:/projects/compsci/db/menu.txt" FOR READING
+    WHILE NOT END OF FILE menudb
+        READ menu_item.name, menu_item.price, menu_item.quantity FROM menudb
+        PRINT "Item: " + menu_item.name + ", Price: $" + menu_item.price + ", Quantity: " + menu_item.quantity
+    END WHILE
+    CLOSE menudb
+
+FUNCTION addToMenu()
+    INPUT "What would you like to add to the menu?\n> " TO new_item.name
+    INPUT "What is the price of this item?\n> " TO new_item.price
+    INPUT "How much of this item are you adding?\n> " TO new_item.quantity
+    OPEN FILE menudb WITH PATH "D:/projects/compsci/db/menu.txt" FOR APPENDING
+    WRITE new_item.name, new_item.price, new_item.quantity TO menudb
+    CLOSE menudb
+
+FUNCTION searchMenu() -> INTEGER
+    INPUT "Enter search prefix\n> " TO i_searchPrefix
+    OPEN FILE menudb WITH PATH "D:/projects/compsci/db/menu.txt" FOR READING
+    IF FILE NOT FOUND THEN
+        PRINT "Failed to open menu file."
+        RETURN -1
+    END IF
+    WHILE NOT END OF FILE menudb
+        READ menu_item.name, menu_item.price, menu_item.quantity FROM menudb
+        IF SUBSTRING(menu_item.name, 1, LENGTH(i_searchPrefix)) EQUALS i_searchPrefix THEN
+            PRINT "Item: " + menu_item.name + ", Price: $" + menu_item.price + ", Quantity: " + menu_item.quantity
+            INCREMENT matchCount
+        END IF
+    END WHILE
+    CLOSE menudb
+    RETURN matchCount
+
+FUNCTION sellItem()
+    INPUT "What item does the student want to purchase?\n> " TO sold_item.item
+    OPEN FILE menudb WITH PATH "D:/projects/compsci/db/menu.txt" FOR READING
+    IF FILE NOT FOUND THEN
+        PRINT "Error opening menu file."
+        RETURN
+    END IF
+    SET itemFound TO FALSE
+    WHILE NOT END OF FILE menudb AND NOT itemFound
+        READ menu_item.name, menu_item.price, menu_item.quantity FROM menudb
+        IF menu_item.name EQUALS sold_item.item THEN
+            SET itemFound TO TRUE
+        END IF
+    END WHILE
+    CLOSE menudb
+
+    IF NOT itemFound THEN
+        PRINT "Item not found in the menu."
+        RETURN
+    END IF
+
+    INPUT "How many of these are you selling?\n> " TO sold_item.quantity
+
+    IF sold_item.quantity <= 0 THEN
+        PRINT "Invalid quantity."
+        RETURN
+    END IF
+
+    IF menu_item.quantity < sold_item.quantity THEN
+        PRINT "Not enough stock available for " + sold_item.item + "."
+        RETURN
+    END IF
+
+    SET new_item_quantity TO menu_item.quantity - sold_item.quantity
+
+    OPEN FILE menudb WITH PATH "D:/projects/compsci/db/menu.txt" FOR READING
+    OPEN FILE tempdb WITH PATH "D:/projects/compsci/db/temp_menu.txt" FOR WRITING
+
+    WHILE NOT END OF FILE menudb
+        READ menu_item.name, menu_item.price, menu_item.quantity FROM menudb
+        IF menu_item.name EQUALS sold_item.item THEN
+            WRITE menu_item.name, menu_item.price, new_item_quantity TO tempdb
+        ELSE
+            WRITE menu_item.name, menu_item.price, menu_item.quantity TO tempdb
+        END IF
+    END WHILE
+
+    CLOSE menudb
+    CLOSE tempdb
+
+    DELETE FILE "D:/projects/compsci/db/menu.txt"
+    RENAME FILE "D:/projects/compsci/db/temp_menu.txt" TO "D:/projects/compsci/db/menu.txt"
+
+    OPEN FILE counterdb WITH PATH "D:/projects/compsci/db/sales.txt" FOR APPENDING
+    WRITE sold_item.item, menu_item.price, sold_item.quantity TO counterdb
+    CLOSE counterdb
+
+    PRINT "Sale recorded successfully."
+
+FUNCTION calculateSoldItem()
+    OPEN FILE counterdb WITH PATH "D:/projects/compsci/db/sales.txt" FOR READING
+    IF FILE NOT FOUND THEN
+        PRINT "Error opening sales file."
+        RETURN
+    END IF
+
+    ARRAY items[100] OF CHARACTERS OF LENGTH 50
+    ARRAY quantities[100] OF INTEGER INITIALIZED TO 0
+    ARRAY prices[100] OF INTEGER
+    SET count TO 0
+
+    WHILE NOT END OF FILE counterdb
+        READ sold_item.item, sold_item.price, sold_item.quantity FROM counterdb
+        SET index TO -1
+
+        FOR i FROM 0 TO count - 1
+            IF items[i] EQUALS sold_item.item THEN
+                SET index TO i
+                BREAK
+            END IF
+        END FOR
+
+        IF index EQUALS -1 THEN
+            COPY sold_item.item TO items[count]
+            SET quantities[count] TO sold_item.quantity
+            SET prices[count] TO sold_item.price
+            INCREMENT count
+        ELSE
+            SET quantities[index] TO quantities[index] + sold_item.quantity
+        END IF
+    END WHILE
+
+    CLOSE counterdb
+
+    FOR i FROM 0 TO count - 1
+        SET money_made TO prices[i] * quantities[i]
+        PRINT "Item: " + items[i] + ", Price per unit: $" + prices[i] + ", Total Quantity: " + quantities[i] + ", Total Money made from item: $" + money_made
+    END FOR
+
+FUNCTION CLI(username: ARRAY OF CHARACTERS OF LENGTH 20, reinit: INTEGER)
+    INTEGER i_operation
+
+    IF reinit THEN
+        PRINT "Welcome " + username + ", what would you like to do today?"
+    END IF
+    
+    PRINT "[1] Get the current menu"
+    PRINT "[2] Add an item to the menu"
+    PRINT "[3] Search the menu for a specific item"
+    PRINT "[4] Sell an item"
+    PRINT "[5] Calculate amount of item sold"
+    PRINT "[6] Exit the program"
+    PRINT "Please enter the number correlated to your option of choice."
+    INPUT TO i_operation
+
+    SWITCH i_operation
+        CASE 1:
+            getMenu()
+            CLI("", 0)
+        CASE 2:
+            addToMenu()
+            CLI("", 0)
+        CASE 3:
+            INTEGER result
+            result = searchMenu()
+            IF result EQUALS -1 THEN
+                PRINT "Failed to open menu file."
+            ELSE
+                PRINT "Found " + result + " matching items."
+            END IF
+            CLI("", 0)
+        CASE 4:
+            sellItem()
+            CLI("", 0)
+        CASE 5:
+            calculateSoldItem()
+            CLI("", 0)
+        CASE 6:
+            // Exit the program
+        DEFAULT:
+            // Handle invalid input
+    END SWITCH
+
+FUNCTION makeUser()
+    CHARACTER ARRAY fp OF LENGTH 60  // file path
+    CHARACTER ARRAY fc OF LENGTH 40  // file content
+    CHARACTER ARRAY i_username OF LENGTH 20
+    CHARACTER ARRAY i_password OF LENGTH 20
+
+    PRINT "Enter the username of the user you'd like to create"
+    INPUT TO i_username
+    PRINT "Enter the password of the user you'd like to create"
+    INPUT TO i_password
+
+    FORMAT fp USING "D:/projects/compsci/db/users/", i_username, ".txt"
+    OPEN FILE userdb WITH PATH fp FOR WRITING
+    FORMAT fc USING i_username, "\n", i_password
+    // fc = <username>\n<password>
+    WRITE fc TO userdb
+    CLOSE userdb
+
+    PRINT "`" + i_username + "`, User created"
+    COPY i_username TO current_username
+    CLI(i_username, 0)
+
+FUNCTION main()
+    CHARACTER ARRAY i_username OF LENGTH 20
+    CHARACTER ARRAY i_password OF LENGTH 20
+    INTEGER option
+
+    PRINT "Welcome to the York Castle canteen POS"
+    PRINT "Enter 1 to make an account or 2 to login"
+    INPUT TO option
+
+    SWITCH option
+        CASE 1:
+            makeUser()
+        CASE 2:
+            PRINT "Please enter username"
+            INPUT TO i_username
+            PRINT "Please enter password"
+            INPUT TO i_password
+            IF login(i_username, i_password) THEN
+                // Welcome message
+                CLI(i_username, 1)
+            ELSE
+                PRINT "Please check credentials and ensure your userfile exists"
+            END IF
+        DEFAULT:
+            // Handle invalid input
+    END SWITCH

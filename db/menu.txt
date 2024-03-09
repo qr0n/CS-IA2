@@ -1,4 +1,6 @@
-test 10 0
-beans 1 100
-thousand 1 222
-nahida 1 1000
+BunCheese 250 100
+Shirley 100 100
+CupNoodles 200 100
+CheeseDanish 200 100
+JuiceBox 110 200
+itemname 10 0

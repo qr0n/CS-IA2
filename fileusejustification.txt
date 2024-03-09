@@ -1,0 +1,10 @@
+The username file is a text file named after the username of the account holder,
+this file contains the username and password of the account and is used to authenticate 
+the user if the file is already created, or to create a new user on the system
+
+The menu file is a text file that is used to store the current menu, it serves 3 primary functions
+firstly it provides the menu, secondly it is how a user adds another menu item through the system
+and lastly it allows for the sales function and calculate functions to work
+
+additionally the sales file is a text file where the current sales are stored
+the temp_menu file is a temporary text file used to buffer the sell item function

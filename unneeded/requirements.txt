@@ -24,15 +24,4 @@ Non-functional requirements:
 
 The system will be easy to use for everyone and can be taught in 15 minutes
 The software will be able to process user inputs at least sub second
-The software will work on almost any machine with a c-compiler 
-
-
-when adding a scanf add an extra buffer 
-menu prices
-menu items
-data storage
-use switch statements coz cool
-prompt user politely 
-continus end function kinda 
-add fixed quantity  function to this thing
-make calculate sold function cool :thumbs up:
+The software will work on almost any machine with a c-compiler
