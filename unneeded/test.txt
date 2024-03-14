@@ -45,31 +45,10 @@ class ExcelFileManagement:
 
         print(f"Starting from cell: {start_cell}")
         workbook.save(workbook_path)
-        
+
     @staticmethod
-    def add_results(module, input_data, expected):
-        try:
-        # Find the next available row
-            row = sheet.max_row + 1
-        # Set the column index to 2 (column B)
-            col = 2
-        # Get the cell IDs for each row in column B
-            module_cell = f"{alphabet_dict[col]}{row}"
-            input_cell = f"{alphabet_dict[col]}{row + 1}"
-            expected_cell = f"{alphabet_dict[col]}{row + 2}"
-
-        # Set values in the corresponding cells
-            sheet[module_cell] = module
-            sheet[input_cell] = input_data
-            sheet[expected_cell] = expected
-
-        # Save the workbook
-            workbook.save(workbook_path)
-            return "Results added successfully"
-        except Exception as e:
-            return str(e)
-
-
+    def add_results(module, input, expected):
+        return "do this too"
 
 class ScreenshotManagement:
     class Helper:
@@ -90,8 +69,7 @@ class ScreenshotManagement:
         screenshot.save(path_to_save)
     
 # ScreenshotManagement.take_screenshot("C:/Users/bhave/OneDrive/Desktop/test.png")
-# ExcelFileManagement.populate_table()
-ExcelFileManagement.add_results("main", "hello data", "nothing yet")
+ExcelFileManagement.populate_table()
 
 """ TODO 
 - use 2 functions, one for headers, one for data ( a little cancer but its easier than what was being done before )

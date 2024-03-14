@@ -1,262 +1,336 @@
-CONST MAX_ITEM_NAME_LENGTH = 20
+CALL PROCEDURE main
+END PROCEDURE
 
-STRUCT MenuItem
-    name: ARRAY OF CHARACTERS OF LENGTH MAX_ITEM_NAME_LENGTH
-    price: INTEGER
-    quantity: INTEGER
+PROCEDURE main
+    CHAR i_username[MAX_USERNAME_LENGTH]
+    CHAR i_password[MAX_PASSWORD_LENGTH]
+    INT option
 
-STRUCT SalesRecord
-    item: ARRAY OF CHARACTERS OF LENGTH MAX_ITEM_NAME_LENGTH
-    price: INTEGER
-    quantity: INTEGER
+    REPEAT
+        PRINT("Welcome to the York Castle canteen POS")
+        PRINT("Enter 1 to login or 2 to make one.")
+        INPUT(option)
 
-FILE userdb
-FILE menudb
-FILE counterdb
-CHARACTER ARRAY current_username OF LENGTH 20
+        // Consume the newline character from the input buffer
+        GETCHAR()
 
-FUNCTION credentialsExist(username: ARRAY OF CHARACTERS OF LENGTH 20, password: ARRAY OF CHARACTERS OF LENGTH 20) -> BOOLEAN
-    OPEN FILE userdb WITH PATH "D:/projects/compsci/db/users/" + username + ".txt" FOR READING
-    WHILE NOT END OF FILE userdb
-        READ user, pass FROM userdb
-        IF username EQUALS user AND password EQUALS pass THEN
-            CLOSE userdb
-            RETURN TRUE
+        // Check if the input option is valid
+        IF option IS NOT 1 AND option IS NOT 2 THEN
+            PRINT("Not a valid option. Please try again.")
         END IF
-    END WHILE
-    CLOSE userdb
-    RETURN FALSE
+    UNTIL option IS 1 OR option IS 2
 
-FUNCTION login(username: ARRAY OF CHARACTERS OF LENGTH 20, password: ARRAY OF CHARACTERS OF LENGTH 20) -> INTEGER
-    IF credentialsExist(username, password) THEN
-        PRINT "Welcome " + username + ", what would you like to do today?"
-        RETURN 1
-    ELSE
-        PRINT "Invalid credentials. Please check again or ensure that your userfile is created."
+    SWITCH option
+        CASE 1:
+            PRINT("Please enter username")
+            INPUT(i_username)
+            PRINT("Please enter password")
+            INPUT(i_password)
+
+            IF CALL FUNCTION login WITH ARGUMENTS i_username, i_password THEN
+                // PRINT("Welcome, " + i_username)
+                CALL PROCEDURE CLI WITH ARGUMENTS i_username, 1
+            ELSE
+                // PRINT("Please check credentials and ensure your userfile exists")
+            END IF
+            BREAK
+
+        CASE 2:
+            CALL PROCEDURE makeUser
+            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            BREAK
+
+        DEFAULT:
+            // PRINT("Not right.")
+            BREAK
+    END SWITCH
+END PROCEDURE
+
+PROCEDURE CLI(username, reinit)
+    INT i_operation
+
+    IF reinit THEN
+        PRINT("Welcome " + username + ", what would you like to do today?")
+    END IF
+
+    PRINT("[1] Get the current menu")
+    PRINT("[2] Add an item to the menu")
+    PRINT("[3] Search the menu for a specific item")
+    PRINT("[4] Sell an item")
+    PRINT("[5] Calculate amount of item sold")
+    PRINT("[6] Exit the program")
+    PRINT("Please enter the number correlated to your option of choice.")
+    INPUT(i_operation)
+
+    // Consume the newline character from the input buffer
+    GETCHAR()
+
+    SWITCH i_operation
+        CASE 1:
+            CALL PROCEDURE getMenu
+            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            BREAK
+
+        CASE 2:
+            CALL PROCEDURE addToMenu
+            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            BREAK
+
+        CASE 3:
+            INT result = CALL FUNCTION searchMenu
+            IF result IS -1 THEN
+                PRINT("Failed to open menu file.")
+            ELSE
+                // Handle successful result
+            END IF
+            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            BREAK
+
+        CASE 4:
+            CALL PROCEDURE sellItem 
+            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            BREAK
+
+        CASE 5:
+            CALL PROCEDURE calculateSoldItem
+            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            BREAK
+
+        CASE 6:
+            // Exiting the program
+            BREAK
+
+        DEFAULT:
+            PRINT("Error invalid input, please pick another (1-6)")
+            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            BREAK
+    END SWITCH
+END PROCEDURE
+
+PROCEDURE isValidInt(input)
+    INT length = LENGTH OF input
+    FOR i = 0 TO length - 1
+        IF input[i] < '0' OR input[i] > '9' THEN
+            RETURN 0 // Not a valid integer
+        END IF
+    END FOR
+    RETURN 1 // Valid integer
+END PROCEDURE
+
+PROCEDURE isValidCredentials(username, password)
+    RETURN (LENGTH OF username > 4 AND LENGTH OF username <= MAX_USERNAME_LENGTH AND
+            LENGTH OF password > 4 AND LENGTH OF password <= MAX_PASSWORD_LENGTH)
+END PROCEDURE
+
+PROCEDURE credentialsExist(username, password)
+    IF NOT CALL FUNCTION isValidCredentials WITH ARGUMENTS username, password THEN
+        PRINT("Invalid credentials. Username and password must not be empty and should be less than or equal to " + MAX_USERNAME_LENGTH + " characters.")
         RETURN 0
     END IF
 
-FUNCTION getMenu()
-    OPEN FILE menudb WITH PATH "D:/projects/compsci/db/menu.txt" FOR READING
-    WHILE NOT END OF FILE menudb
-        READ menu_item.name, menu_item.price, menu_item.quantity FROM menudb
-        PRINT "Item: " + menu_item.name + ", Price: $" + menu_item.price + ", Quantity: " + menu_item.quantity
-    END WHILE
-    CLOSE menudb
+    CHAR user[50]
+    CHAR pass[20]
+    CHAR fp[40]
+    SPRINTF(fp, "%s/%s.txt", "F:/projects/compsci/db/users", username)
 
-FUNCTION addToMenu()
-    INPUT "What would you like to add to the menu?\n> " TO new_item.name
-    INPUT "What is the price of this item?\n> " TO new_item.price
-    INPUT "How much of this item are you adding?\n> " TO new_item.quantity
-    OPEN FILE menudb WITH PATH "D:/projects/compsci/db/menu.txt" FOR APPENDING
-    WRITE new_item.name, new_item.price, new_item.quantity TO menudb
-    CLOSE menudb
-
-FUNCTION searchMenu() -> INTEGER
-    INPUT "Enter search prefix\n> " TO i_searchPrefix
-    OPEN FILE menudb WITH PATH "D:/projects/compsci/db/menu.txt" FOR READING
-    IF FILE NOT FOUND THEN
-        PRINT "Failed to open menu file."
-        RETURN -1
+    userdb = FOPEN(fp, "r")
+    IF userdb IS NULL THEN
+        PRINT("Error opening user file")
+        RETURN 0
     END IF
-    WHILE NOT END OF FILE menudb
-        READ menu_item.name, menu_item.price, menu_item.quantity FROM menudb
-        IF SUBSTRING(menu_item.name, 1, LENGTH(i_searchPrefix)) EQUALS i_searchPrefix THEN
-            PRINT "Item: " + menu_item.name + ", Price: $" + menu_item.price + ", Quantity: " + menu_item.quantity
-            INCREMENT matchCount
+
+    WHILE FSCANF(userdb, "%s %s", user, pass) IS 2
+        IF STRCMP(username, user) IS 0 AND STRCMP(password, pass) IS 0 THEN
+            FCLOSE(userdb)
+            RETURN 1
         END IF
     END WHILE
-    CLOSE menudb
-    RETURN matchCount
+    FCLOSE(userdb)
+    RETURN 0
+END PROCEDURE
 
-FUNCTION sellItem()
-    INPUT "What item does the student want to purchase?\n> " TO sold_item.item
-    OPEN FILE menudb WITH PATH "D:/projects/compsci/db/menu.txt" FOR READING
-    IF FILE NOT FOUND THEN
-        PRINT "Error opening menu file."
+PROCEDURE addToMenu
+    CHAR new_item_name[MAX_ITEM_NAME_LENGTH]
+    INT new_item_price
+    INT new_item_quantity
+    STRUCT MenuItem new_item
+
+    PRINT("What would you like to add to the menu?")
+    INPUT(new_item_name)
+
+    PRINT("What is the price of this item?")
+    INPUT(new_item_price)
+    IF NOT CALL FUNCTION isValidInt WITH ARGUMENT new_item_price THEN
+        PRINT("Invalid price input. Please enter a valid integer.")
         RETURN
     END IF
-    SET itemFound TO FALSE
-    WHILE NOT END OF FILE menudb AND NOT itemFound
-        READ menu_item.name, menu_item.price, menu_item.quantity FROM menudb
-        IF menu_item.name EQUALS sold_item.item THEN
-            SET itemFound TO TRUE
+    new_item.price = CONVERT TO INTEGER(new_item_price)
+
+    PRINT("How much of this item are you adding?")
+    INPUT(new_item_quantity)
+    IF NOT CALL FUNCTION isValidInt WITH ARGUMENT new_item_quantity THEN
+        PRINT("Invalid quantity input. Please enter a valid integer.")
+        RETURN
+    END IF
+    new_item.quantity = CONVERT TO INTEGER(new_item_quantity)
+
+    PRINT("Added " + new_item.quantity + " of item " + new_item.name + " to menu")
+
+    menudb = FOPEN("F:/projects/compsci/db/menu.txt", "a")
+    FPRINTF(menudb, "%s %d %d", new_item.name, new_item.price, new_item.quantity)
+    FCLOSE(menudb)
+END PROCEDURE
+
+PROCEDURE searchMenu
+    CHAR i_searchPrefix[MAX_ITEM_NAME_LENGTH]
+    INT matchCount = 0
+
+    PRINT("Enter search prefix")
+    INPUT(i_searchPrefix)
+
+    menudb = FOPEN("F:/projects/compsci/db/menu.txt", "r")
+    IF menudb IS NULL THEN
+        PRINT("Error opening menu file")
+        RETURN -1 // Indicate failure
+    END IF
+
+    STRUCT MenuItem menu_item
+
+    WHILE FSCANF(menudb, "%19s %d %d", menu_item.name, &menu_item.price, &menu_item.quantity) IS 3
+        IF STRNCMP(menu_item.name, i_searchPrefix, LENGTH OF i_searchPrefix) IS 0 THEN
+            PRINT("Item: " + menu_item.name + ", Price: $" + menu_item.price + ", Quantity: " + menu_item.quantity)
+            matchCount++
         END IF
     END WHILE
-    CLOSE menudb
+
+    FCLOSE(menudb)
+
+    RETURN matchCount
+    
+END PROCEDURE
+
+PROCEDURE sellItem
+    CHAR sold_item_name[MAX_ITEM_NAME_LENGTH]
+    INT sold_item_quantity
+    STRUCT MenuItem menu_item
+    STRUCT SalesRecord sold_item
+
+    PRINT("What item does the student want to purchase?")
+    INPUT(sold_item_name)
+
+    menudb = FOPEN("F:/projects/compsci/db/menu.txt", "r")
+    IF menudb IS NULL THEN
+        PRINT("Error opening menu file")
+        RETURN
+    END IF
+
+    // Check if the item is in the menu
+    INT itemFound = 0
+    WHILE FSCANF(menudb, "%19s %d %d", menu_item.name, &menu_item.price, &menu_item.quantity) IS 3
+        IF STRCMP(menu_item.name, sold_item_name) IS 0 THEN
+            itemFound = 1
+            BREAK
+        END IF
+    END WHILE
+
+    FCLOSE(menudb)
 
     IF NOT itemFound THEN
-        PRINT "Item not found in the menu."
+        PRINT("Item not found in the menu.")
         RETURN
     END IF
 
-    INPUT "How many of these are you selling?\n> " TO sold_item.quantity
+    PRINT("How many of these are you selling?")
+    INPUT(sold_item_quantity)
+    IF NOT CALL FUNCTION isValidInt WITH ARGUMENT sold_item_quantity THEN
+        PRINT("Invalid quantity input. Please enter a valid integer.")
+        RETURN
+    END IF
+    sold_item.quantity = CONVERT TO INTEGER(sold_item_quantity)
 
     IF sold_item.quantity <= 0 THEN
-        PRINT "Invalid quantity."
+        PRINT("Invalid quantity.")
         RETURN
     END IF
 
+    // Check if there is enough stock
     IF menu_item.quantity < sold_item.quantity THEN
-        PRINT "Not enough stock available for " + sold_item.item + "."
+        PRINT("Not enough stock available for " + sold_item_name + ".")
         RETURN
     END IF
 
-    SET new_item_quantity TO menu_item.quantity - sold_item.quantity
+    // Deduct from the stock
+    INT new_item_quantity = menu_item.quantity - sold_item.quantity
 
-    OPEN FILE menudb WITH PATH "D:/projects/compsci/db/menu.txt" FOR READING
-    OPEN FILE tempdb WITH PATH "D:/projects/compsci/db/temp_menu.txt" FOR WRITING
+    // Update the menu file with the new stock
+    menudb = FOPEN("F:/projects/compsci/db/menu.txt", "r")
+    FILE *tempdb = FOPEN("F:/projects/compsci/db/temp_menu.txt", "w")
 
-    WHILE NOT END OF FILE menudb
-        READ menu_item.name, menu_item.price, menu_item.quantity FROM menudb
-        IF menu_item.name EQUALS sold_item.item THEN
-            WRITE menu_item.name, menu_item.price, new_item_quantity TO tempdb
+    WHILE FSCANF(menudb, "%19s %d %d", menu_item.name, &menu_item.price, &menu_item.quantity) IS 3
+        IF STRCMP(menu_item.name, sold_item_name) IS 0 THEN
+            FPRINTF(tempdb, "%s %d %d\n", menu_item.name, menu_item.price, new_item_quantity)
         ELSE
-            WRITE menu_item.name, menu_item.price, menu_item.quantity TO tempdb
+            FPRINTF(tempdb, "%s %d %d\n", menu_item.name, menu_item.price, menu_item.quantity)
         END IF
     END WHILE
 
-    CLOSE menudb
-    CLOSE tempdb
+    FCLOSE(menudb)
+    FCLOSE(tempdb)
 
-    DELETE FILE "D:/projects/compsci/db/menu.txt"
-    RENAME FILE "D:/projects/compsci/db/temp_menu.txt" TO "D:/projects/compsci/db/menu.txt"
+    REMOVE("F:/projects/compsci/db/menu.txt")
+    RENAME("F:/projects/compsci/db/temp_menu.txt", "F:/projects/compsci/db/menu.txt")
 
-    OPEN FILE counterdb WITH PATH "D:/projects/compsci/db/sales.txt" FOR APPENDING
-    WRITE sold_item.item, menu_item.price, sold_item.quantity TO counterdb
-    CLOSE counterdb
+    // Add the sale to the sales records
+    FILE *counterdb = FOPEN("F:/projects/compsci/db/sales.txt", "a")
+    FPRINTF(counterdb, "%s %d %d\n", sold_item_name, menu_item.price, sold_item.quantity)
+    FCLOSE(counterdb)
 
-    PRINT "Sale recorded successfully."
+    PRINT("Sale recorded successfully.")
+END PROCEDURE
 
-FUNCTION calculateSoldItem()
-    OPEN FILE counterdb WITH PATH "D:/projects/compsci/db/sales.txt" FOR READING
-    IF FILE NOT FOUND THEN
-        PRINT "Error opening sales file."
+PROCEDURE calculateSoldItem
+    STRUCT SalesRecord sold_item
+
+    FILE* counterdb = FOPEN("F:/projects/compsci/db/sales.txt", "r")
+    IF counterdb IS NULL THEN
+        PRINT("Error opening sales file")
         RETURN
     END IF
 
-    ARRAY items[100] OF CHARACTERS OF LENGTH 50
-    ARRAY quantities[100] OF INTEGER INITIALIZED TO 0
-    ARRAY prices[100] OF INTEGER
-    SET count TO 0
+    // Use arrays to store information for each unique item
+    CHAR items[100][50]
+    INT quantities[100] = {0} // Initialize quantities to zero
+    INT prices[100]
+    INT count = 0
 
-    WHILE NOT END OF FILE counterdb
-        READ sold_item.item, sold_item.price, sold_item.quantity FROM counterdb
-        SET index TO -1
+    WHILE FSCANF(counterdb, "%s %d %d", sold_item.item, &sold_item.price, &sold_item.quantity) IS 3
+        INT index = -1
 
-        FOR i FROM 0 TO count - 1
-            IF items[i] EQUALS sold_item.item THEN
-                SET index TO i
+        // Check if the item is already in the array
+        FOR INT i = 0 TO count - 1
+            IF STRCMP(items[i], sold_item.item) IS 0 THEN
+                index = i
                 BREAK
             END IF
         END FOR
 
-        IF index EQUALS -1 THEN
-            COPY sold_item.item TO items[count]
-            SET quantities[count] TO sold_item.quantity
-            SET prices[count] TO sold_item.price
-            INCREMENT count
+        // If the item is not in the array, add it
+        IF index IS -1 THEN
+            STRCPY(items[count], sold_item.item)
+            quantities[count] = sold_item.quantity
+            prices[count] = sold_item.price
+            count++
         ELSE
-            SET quantities[index] TO quantities[index] + sold_item.quantity
+            // If the item is already in the array, update the quantity
+            quantities[index] += sold_item.quantity
         END IF
     END WHILE
 
-    CLOSE counterdb
+    FCLOSE(counterdb)
 
-    FOR i FROM 0 TO count - 1
-        SET money_made TO prices[i] * quantities[i]
-        PRINT "Item: " + items[i] + ", Price per unit: $" + prices[i] + ", Total Quantity: " + quantities[i] + ", Total Money made from item: $" + money_made
+    // Print the consolidated information
+    FOR INT i = 0 TO count - 1
+        INT money_made = prices[i] * quantities[i]
+        PRINT("Item: " + items[i] + ", Price per unit: $" + prices[i] + ", Total Quantity: " + quantities[i] + ", Total Money made from item: $" + money_made)
     END FOR
-
-FUNCTION CLI(username: ARRAY OF CHARACTERS OF LENGTH 20, reinit: INTEGER)
-    INTEGER i_operation
-
-    IF reinit THEN
-        PRINT "Welcome " + username + ", what would you like to do today?"
-    END IF
-    
-    PRINT "[1] Get the current menu"
-    PRINT "[2] Add an item to the menu"
-    PRINT "[3] Search the menu for a specific item"
-    PRINT "[4] Sell an item"
-    PRINT "[5] Calculate amount of item sold"
-    PRINT "[6] Exit the program"
-    PRINT "Please enter the number correlated to your option of choice."
-    INPUT TO i_operation
-
-    SWITCH i_operation
-        CASE 1:
-            getMenu()
-            CLI("", 0)
-        CASE 2:
-            addToMenu()
-            CLI("", 0)
-        CASE 3:
-            INTEGER result
-            result = searchMenu()
-            IF result EQUALS -1 THEN
-                PRINT "Failed to open menu file."
-            ELSE
-                PRINT "Found " + result + " matching items."
-            END IF
-            CLI("", 0)
-        CASE 4:
-            sellItem()
-            CLI("", 0)
-        CASE 5:
-            calculateSoldItem()
-            CLI("", 0)
-        CASE 6:
-            // Exit the program
-        DEFAULT:
-            // Handle invalid input
-    END SWITCH
-
-FUNCTION makeUser()
-    CHARACTER ARRAY fp OF LENGTH 60  // file path
-    CHARACTER ARRAY fc OF LENGTH 40  // file content
-    CHARACTER ARRAY i_username OF LENGTH 20
-    CHARACTER ARRAY i_password OF LENGTH 20
-
-    PRINT "Enter the username of the user you'd like to create"
-    INPUT TO i_username
-    PRINT "Enter the password of the user you'd like to create"
-    INPUT TO i_password
-
-    FORMAT fp USING "D:/projects/compsci/db/users/", i_username, ".txt"
-    OPEN FILE userdb WITH PATH fp FOR WRITING
-    FORMAT fc USING i_username, "\n", i_password
-    // fc = <username>\n<password>
-    WRITE fc TO userdb
-    CLOSE userdb
-
-    PRINT "`" + i_username + "`, User created"
-    COPY i_username TO current_username
-    CLI(i_username, 0)
-
-FUNCTION main()
-    CHARACTER ARRAY i_username OF LENGTH 20
-    CHARACTER ARRAY i_password OF LENGTH 20
-    INTEGER option
-
-    PRINT "Welcome to the York Castle canteen POS"
-    PRINT "Enter 1 to make an account or 2 to login"
-    INPUT TO option
-
-    SWITCH option
-        CASE 1:
-            makeUser()
-        CASE 2:
-            PRINT "Please enter username"
-            INPUT TO i_username
-            PRINT "Please enter password"
-            INPUT TO i_password
-            IF login(i_username, i_password) THEN
-                // Welcome message
-                CLI(i_username, 1)
-            ELSE
-                PRINT "Please check credentials and ensure your userfile exists"
-            END IF
-        DEFAULT:
-            // Handle invalid input
-    END SWITCH
+END PROCEDURE
