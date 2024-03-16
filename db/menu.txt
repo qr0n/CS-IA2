@@ -1,4 +1,4 @@
-BunCheese 250 100
+BunCheese 250 99
 Shirley 100 100
 CupNoodles 200 100
 CheeseDanish 200 100

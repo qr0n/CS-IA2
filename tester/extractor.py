@@ -13,8 +13,7 @@ def extract_function_signatures(file_path):
 
     return function_signatures
 
-if __name__ == "__main__":
-    c_file_path = input("Enter the path to the C file: ")
+def extract(c_file_path):
     all_function_signatures = extract_function_signatures(c_file_path)
 
     if all_function_signatures:

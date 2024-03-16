@@ -1,25 +1,22 @@
-from openpyxl import load_workbook
+import threading
+from openpyxl import load_workbook, Workbook
 from openpyxl.drawing.image import Image
 import pyautogui
 import pygetwindow as gw
 import time
 import subprocess
-import json
 from extractor import *
 
-with open("F:/projects/compsci/tester/config.json", "r") as E:
-    config = json.load(E)
+c_file = "F:/projects/compsci/mod5.c"
+screenshot_path = "F:/projects/compsci/tester/"
 
-c_file = config["c_file"]
-screenshot_path = config["screenshot_path"]
-workbook_path = config["workbook_path"]
-left, top, width, height = 100, 100, 500, 500
+workbook_path = 'C:/Users/bhave/OneDrive/Documents/test.xlsx'
 
 workbook = load_workbook(workbook_path)
 alphabet_dict = {i: chr(i + ord('A') - 1) for i in range(1, 27)}
 
 sheet = workbook['Sheet1']
-
+left, top, width, height = 100, 100, 500, 500
 
 class ExcelFileManagement:
     @staticmethod
@@ -29,7 +26,7 @@ class ExcelFileManagement:
             workbook.save(workbook_path)
             return "Done"
         except Exception as E:
-                return E
+            return E
         
     @staticmethod
     def add_image_to_cell(cell_id, image_path, width, height):
@@ -46,7 +43,7 @@ class ExcelFileManagement:
     @staticmethod
     def populate_table():
         headers = ["Test number", "Test Type", "Variables", "Module", "Input", "Expected result", "Actual result", "Screenshot"]
-    # Calculate the starting cell for populating data
+        # Calculate the starting cell for populating data
         if sheet.max_row == 1:
             start_row = 1
         else:
@@ -63,28 +60,48 @@ class ExcelFileManagement:
     def add_results(test_type, variables, module, input_data, expected):
         ExcelFileManagement.populate_table()
         try:
-            print("compiling")
+            print("Compiling C program...")
+            compile_thread = threading.Thread(target=ExcelFileManagement.compile_c_program, args=(test_type, variables, module, input_data, expected))
+            compile_thread.start()
+        except Exception as e:
+            return str(e)
+
+    @staticmethod
+    def compile_c_program(test_type, variables, module, input_data, expected):
+        try:
             process = subprocess.Popen(["gcc", c_file, "-o", "output.exe"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             _, error = process.communicate()
             if error:
                 raise Exception(f"Compilation Error: {error.decode('utf-8')}")
-            print("finished compiling")
 
-            print("executing")
+            print("Executing C program...")
+            execution_thread = threading.Thread(target=ExcelFileManagement.execute_c_program, args=(test_type, variables, module, input_data, expected))
+            execution_thread.start()
+        except Exception as e:
+            return str(e)
+
+    @staticmethod
+    def execute_c_program(test_type, variables, module, input_data, expected):
+        try:
             process = subprocess.Popen(["output.exe"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, error = process.communicate(input=input_data.encode('utf-8'))
             if error:
                 raise Exception(f"Execution Error: {error.decode('utf-8')}")
-        # Find the next available row
+
+            print("C program executed successfully.")
+            print("Output:")
+            print(output.decode("utf-8"))
+
+            # Find the next available row
             if sheet.max_row == 1:
                 row = sheet.max_row
             else:
                 row = sheet.max_row - 7
-        
-        # Define the starting column index
+            
+            # Define the starting column index
             start_col = 2  # Column B
-        
-        # Set values in the corresponding cells
+            
+            # Set values in the corresponding cells
             sheet.cell(row=row + 1, column=start_col).value = test_type
             sheet.cell(row=row + 2, column=start_col).value = variables
             
@@ -98,9 +115,9 @@ class ExcelFileManagement:
             ScreenshotManagement.take_screenshot(ss_path)
             ExcelFileManagement.add_image_to_cell(cell_id=f"B{row + 7}", image_path=ss_path, width=100, height=100)
 
-        # Save the workbook
+            # Save the workbook
             workbook.save(workbook_path)
-            return "Results added successfully"
+            print("Results added successfully")
         except Exception as e:
             return str(e)
 
@@ -117,8 +134,8 @@ class ScreenshotManagement:
             
     @staticmethod
     def take_screenshot(path_to_save):
-        #ScreenshotManagement.Helper.focus_window_by_title("Windows PowerShell")
-        #time.sleep(1)
+        ScreenshotManagement.Helper.focus_window_by_title("Windows PowerShell")
+        time.sleep(1)
         screenshot = pyautogui.screenshot(region=(left, top, width, height))
         screenshot.save(path_to_save)
 
