@@ -4,3 +4,4 @@ CupNoodles 200 100
 CheeseDanish 200 100
 JuiceBox 110 200
 itemname 10 0
+cancer 0 11

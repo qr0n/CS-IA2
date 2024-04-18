@@ -1,5 +1,9 @@
 {
-    "c_file": "F:/projects/compsci/test.c",
+    "c_file": "F:/projects/compsci/tester/test.c",
     "screenshot_path": "F:/projects/compsci/tester/",
-    "workbook_path": "C:/Users/bhave/OneDrive/Documents/test.xlsx"
-  }  
+    "workbook_path": "C:/Users/bhave/OneDrive/Documents/test.xlsx",
+    "top" : 100,
+    "width" : 100,
+    "height" : 100,
+    "left" : 100
+}  

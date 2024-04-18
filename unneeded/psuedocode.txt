@@ -1,6 +1,20 @@
 CALL PROCEDURE main
 END PROCEDURE
 
+DEFINE MAX_ITEM_NAME_LENGTH 20
+DEFINE MAX_USERNAME_LENGTH 20
+DEFINE MAX_PASSWORD_LENGTH 20
+
+STRUCT MenuItem
+    CHAR ARRAY name
+    INTEGER price
+    INTEGER quantity
+
+STRUCT SalesRecord
+    CHAR ARRAY item
+    INTEGER price
+    INTEGER quantity
+
 PROCEDURE main
     CHAR i_username[MAX_USERNAME_LENGTH]
     CHAR i_password[MAX_PASSWORD_LENGTH]
@@ -45,6 +59,12 @@ PROCEDURE main
             BREAK
     END SWITCH
 END PROCEDURE
+
+PROCEDURE login(username, password)
+    IF CALL PROCEDURE credentialsExist WITH ARGUMENTS username, password THEN
+        RETURN 1
+    ELSE
+        RETURN 0
 
 PROCEDURE CLI(username, reinit)
     INT i_operation
