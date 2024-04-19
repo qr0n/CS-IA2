@@ -1,23 +1,23 @@
 Pseudocode Fixes:
     + Add `login`                                               # DONE
     + Add globally declared structs `MenuItem` `SalesRecord`    # DONE
+    + Patch second resolve for `searchMenu`                     # DONE
 
 Use of files / Justification
     + Show file formatting (username) (password)                # DONE
     + Data type of each input                                   # DONE
-    + Who its coming from                                       # Pending
-    + Purpose of each input
-    
-    + State outputs 
+    + Who its coming from                                       # DONE
+    + Purpose of each input                                     # DONE
+    + State outputs                                             # Pending   
     + Purpose of each output
 
 Testing:
     4.3:
-    fix input and screenshot
-    test with long int
+    fix input and screenshot                                    # DONE
+    test with long int                                          # DONE
 
     4.1:
-    change test.type to `extreme`
+    change test.type to `extreme`                               # DONE 
 
 Technical documentation:
-    + Redo
+    + Redo                                                      # Pending

@@ -10,13 +10,14 @@ db/sales.txt
 character array     integer
 itemname            quantity
 
-in the file db/users/{username}.txt
-there is only one type of data being stored, being a character array,
-this data is coming from the currently active user of the program either making an account
-or logging into an already existing account these inputs are stored in the following order
+in the file db/users/{username}.txt there is only one type of data being stored, being a character array, this data is coming from the currently active user of the program either making an account or logging into an already existing account these inputs are stored in the following order
 
 {username} {password}
 
-in the file db/menu.txt
-there are two types of data being stored, being a character and an integer
-this data is coming
+in the file db/menu.txt there are two types of data being stored, being a character and an integer this data is coming from the user when they call the `addToMenu` function and the `sellItem`, this data is used for storing the current menu. The data is stored in the following order
+
+{ItemName} {Quantity} {ItemPrice}
+
+in the file db/sale.txt there are three types of data being stored, being a character and an integer this data is coming from the user when they call the function `sellItem`, the data is stored in the following order
+
+{ItemName} {Quantity} {ItemPrice}

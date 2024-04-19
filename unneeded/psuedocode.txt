@@ -99,9 +99,7 @@ PROCEDURE CLI(username, reinit)
         CASE 3:
             INT result = CALL FUNCTION searchMenu
             IF result IS -1 THEN
-                PRINT("Failed to open menu file.")
-            ELSE
-                // Handle successful result
+                PRINT("Failed to open menu file.")          // Error handling (on default case this will be printing from searchMenu)
             END IF
             CALL PROCEDURE CLI WITH ARGUMENTS "", 0
             BREAK
