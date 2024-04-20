@@ -43,7 +43,7 @@ PROCEDURE main
 
             IF CALL FUNCTION login WITH ARGUMENTS i_username, i_password THEN
                 // PRINT("Welcome, " + i_username)
-                CALL PROCEDURE CLI WITH ARGUMENTS i_username, 1
+                CALL PROCEDURE interface WITH ARGUMENTS i_username, 1
             ELSE
                 // PRINT("Please check credentials and ensure your userfile exists")
             END IF
@@ -51,7 +51,7 @@ PROCEDURE main
 
         CASE 2:
             CALL PROCEDURE makeUser
-            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            CALL PROCEDURE interface WITH ARGUMENTS "", 0
             BREAK
 
         DEFAULT:
@@ -66,7 +66,7 @@ PROCEDURE login(username, password)
     ELSE
         RETURN 0
 
-PROCEDURE CLI(username, reinit)
+PROCEDURE interface(username, reinit)
     INT i_operation
 
     IF reinit THEN
@@ -88,12 +88,12 @@ PROCEDURE CLI(username, reinit)
     SWITCH i_operation
         CASE 1:
             CALL PROCEDURE getMenu
-            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            CALL PROCEDURE interface WITH ARGUMENTS "", 0
             BREAK
 
         CASE 2:
             CALL PROCEDURE addToMenu
-            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            CALL PROCEDURE interface WITH ARGUMENTS "", 0
             BREAK
 
         CASE 3:
@@ -101,17 +101,17 @@ PROCEDURE CLI(username, reinit)
             IF result IS -1 THEN
                 PRINT("Failed to open menu file.")          // Error handling (on default case this will be printing from searchMenu)
             END IF
-            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            CALL PROCEDURE interface WITH ARGUMENTS "", 0
             BREAK
 
         CASE 4:
             CALL PROCEDURE sellItem 
-            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            CALL PROCEDURE interface WITH ARGUMENTS "", 0
             BREAK
 
         CASE 5:
             CALL PROCEDURE calculateSoldItem
-            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            CALL PROCEDURE interface WITH ARGUMENTS "", 0
             BREAK
 
         CASE 6:
@@ -120,7 +120,7 @@ PROCEDURE CLI(username, reinit)
 
         DEFAULT:
             PRINT("Error invalid input, please pick another (1-6)")
-            CALL PROCEDURE CLI WITH ARGUMENTS "", 0
+            CALL PROCEDURE interface WITH ARGUMENTS "", 0
             BREAK
     END SWITCH
 END PROCEDURE

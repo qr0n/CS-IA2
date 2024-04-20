@@ -310,7 +310,7 @@ void calculateSoldItem() {
 }
 
 // Prompt for user to select action 1-6
-void CLI(char *username, int reinit) {
+void interface(char *username, int reinit) {
     int i_operation;
 
     if (reinit) {
@@ -331,12 +331,12 @@ void CLI(char *username, int reinit) {
     switch (i_operation) {
         case 1:
             getMenu();
-            CLI("", 0);
+            interface("", 0);
             break;
 
         case 2:
             addToMenu();
-            CLI("", 0);
+            interface("", 0);
             break;
 
         case 3:
@@ -346,24 +346,24 @@ void CLI(char *username, int reinit) {
             } else {
                 
             }
-            CLI("", 0);
+            interface("", 0);
             break;
 
         case 4:
             sellItem(); 
-            CLI("", 0);
+            interface("", 0);
             break;
 
         case 5:
             calculateSoldItem();
-            CLI("", 0);
+            interface("", 0);
             break;
 
         case 6:
             break;
         default:
         printf("Error invalid input, please pick another (1-6)\n");
-        CLI("", 0);
+        interface("", 0);
             break;
     }
 }
@@ -444,7 +444,7 @@ int main() {
 
             if (login(i_username, i_password)) {
                 //printf("Welcome, %s", i_username);
-                CLI(i_username, 1);
+                interface(i_username, 1);
             } else {
                 //printf("Please check credentials and ensure your userfile exists\n");
             }
@@ -452,7 +452,7 @@ int main() {
 
         case 2:
             makeUser();
-            CLI("", 0);
+            interface("", 0);
             break;
 
         default:

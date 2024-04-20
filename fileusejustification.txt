@@ -18,6 +18,6 @@ in the file db/menu.txt there are two types of data being stored, being a charac
 
 {ItemName} {Quantity} {ItemPrice}
 
-in the file db/sale.txt there are three types of data being stored, being a character and an integer this data is coming from the user when they call the function `sellItem`, the data is stored in the following order
+in the file db/sale.txt there are three types of data being stored, being a character and an integer this data is coming from the user when they call the function `sellItem`, this data is used to store the items that have been sold for a duration, the data is stored in the following order
 
 {ItemName} {Quantity} {ItemPrice}

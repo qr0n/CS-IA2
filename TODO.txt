@@ -8,8 +8,8 @@ Use of files / Justification
     + Data type of each input                                   # DONE
     + Who its coming from                                       # DONE
     + Purpose of each input                                     # DONE
-    + State outputs                                             # Pending   
-    + Purpose of each output
+    + State outputs                                             # DONE
+    + Purpose of each output                                    # DONE
 
 Testing:
     4.3:
@@ -20,4 +20,4 @@ Testing:
     change test.type to `extreme`                               # DONE 
 
 Technical documentation:
-    + Redo                                                      # Pending
+    + Redo                                                      # PENDING
