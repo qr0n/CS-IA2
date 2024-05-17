@@ -421,7 +421,7 @@ int main() {
     int option;
 
     do {
-        printf("Welcome to the York Castle canteen POS\n");
+        printf("Welcome to the XXX canteen POS\n");
         printf("Enter 1 to login or 2 to make one.\n> ");
         scanf("%d", &option);
 
